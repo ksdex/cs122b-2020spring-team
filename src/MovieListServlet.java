@@ -16,8 +16,8 @@ import java.sql.Statement;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
-@WebServlet(name = "StarsServlet", urlPatterns = "/api/stars")
-public class StarsServlet extends HttpServlet {
+@WebServlet(name = "MovieListServlet", urlPatterns = "/api/movieList")
+public class MovieListServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // Create a dataSource which registered in web.xml
@@ -28,7 +28,6 @@ public class StarsServlet extends HttpServlet {
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         response.setContentType("application/json"); // Response mime type
 
         // Output stream to STDOUT
@@ -41,8 +40,8 @@ public class StarsServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            String query = "SELECT * from movies limit 0,20";
-            String query2 = "SELECT * from movies limit 0,2;";
+            String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0,20";
+            // String query2 = "SELECT * from movies limit 0,2;";
 
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
@@ -54,6 +53,7 @@ public class StarsServlet extends HttpServlet {
                 String movie_title = rs.getString("title");
                 String movie_year = rs.getString("year");
                 String movie_director = rs.getString("director");
+                String movie_rating = rs.getString("rating");
 
                 // Create a JsonObject based on the data we retrieve from rs
                 JsonObject jsonObject = new JsonObject();
@@ -61,32 +61,43 @@ public class StarsServlet extends HttpServlet {
                 jsonObject.addProperty("movie_title", movie_title);
                 jsonObject.addProperty("movie_year", movie_year);
                 jsonObject.addProperty("movie_director", movie_director);
+                jsonObject.addProperty("movie_rating", movie_rating);
                 Statement statement2 = dbcon.createStatement();
-                ResultSet rs2 = statement2.executeQuery("select * from movies,stars,stars_in_movies" +
-                        " where stars.id=stars_in_movies.starId and stars_in_movies.movieId=movies.id" +
-                        " and movies.id='"+movie_id+"' limit 0,3");
+                ResultSet rs2 = statement2.executeQuery(
+                        "select * from movies, stars, stars_in_movies" +
+                                " where stars.id = stars_in_movies.starId " +
+                                " and stars_in_movies.movieId=movies.id" +
+                                " and movies.id='" + movie_id + "' limit 0,3");
+                JsonObject starsJsonObject = new JsonObject();
                 int count = 1;
                 while(rs2.next()){
-                    jsonObject.addProperty("movie_stars"+count,rs2.getString("name"));
+                    JsonObject singleStarJsonObject = new JsonObject();
+                    singleStarJsonObject.addProperty("id", rs2.getString("starId"));
+                    singleStarJsonObject.addProperty("name", rs2.getString("name"));
+                    starsJsonObject.add(Integer.toString(count), singleStarJsonObject);
                     count += 1;
                 }
+                jsonObject.add("movie_stars", starsJsonObject);
                 rs2.close();
                 statement2.close();
 
                 Statement statement3 = dbcon.createStatement();
-                ResultSet rs3 = statement3.executeQuery("select * from movies,genres,genres_in_movies" +
+                ResultSet rs3 = statement3.executeQuery(
+                        "select * from movies,genres,genres_in_movies" +
                         " where genres.id=genres_in_movies.genreId and genres_in_movies.movieId=movies.id" +
-                        " and movies.id='"+movie_id+"' limit 0,3");
+                        " and movies.id='" + movie_id + "' limit 0,3");
+                JsonObject genresJsonObject = new JsonObject();
                 count = 1;
                 while(rs3.next()){
-                    jsonObject.addProperty("movie_genres"+count,rs3.getString("name"));
+                    genresJsonObject.addProperty(Integer.toString(count), rs3.getString("name"));
                     count += 1;
                 }
+                jsonObject.add("movie_genres", genresJsonObject);
                 rs3.close();
                 statement3.close();
                 jsonArray.add(jsonObject);
             }
-            
+
             // write JSON string to output
             out.write(jsonArray.toString());
             // set response status to 200 (OK)
@@ -96,13 +107,12 @@ public class StarsServlet extends HttpServlet {
             statement.close();
             dbcon.close();
         } catch (Exception e) {
-        	
 			// write error message JSON object to output
 			JsonObject jsonObject = new JsonObject();
 			jsonObject.addProperty("errorMessage", e.getMessage());
 			out.write(jsonObject.toString());
 
-			// set reponse status to 500 (Internal Server Error)
+			// set response status to 500 (Internal Server Error)
 			response.setStatus(500);
 
         }
