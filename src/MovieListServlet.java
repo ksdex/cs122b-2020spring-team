@@ -40,7 +40,8 @@ public class MovieListServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0,20";
+            // desc
+            String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId order by rating limit 0, 20";
             // String query2 = "SELECT * from movies limit 0,2;";
 
             // Perform the query
@@ -67,7 +68,7 @@ public class MovieListServlet extends HttpServlet {
                         "select * from movies, stars, stars_in_movies" +
                                 " where stars.id = stars_in_movies.starId " +
                                 " and stars_in_movies.movieId=movies.id" +
-                                " and movies.id='" + movie_id + "' limit 0,3");
+                                " and movies.id='" + movie_id + "' limit 0, 3");
                 JsonObject starsJsonObject = new JsonObject();
                 int count = 1;
                 while(rs2.next()){

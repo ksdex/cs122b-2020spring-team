@@ -20,7 +20,7 @@ public class SingleStarServlet extends HttpServlet {
 	private static final long serialVersionUID = 2L;
 
 	// Create a dataSource which registered in web.xml
-	@Resource(name = "jdbc/moviedbexample")
+	@Resource(name = "jdbc/moviedb")
 	private DataSource dataSource;
 
 	/**
@@ -74,7 +74,13 @@ public class SingleStarServlet extends HttpServlet {
 				JsonObject jsonObject = new JsonObject();
 				jsonObject.addProperty("star_id", starId);
 				jsonObject.addProperty("star_name", starName);
-				jsonObject.addProperty("star_dob", starDob);
+
+				if (starDob == null){
+					jsonObject.addProperty("star_dob", "N/A");
+				}
+				else {
+					jsonObject.addProperty("star_dob", starDob);
+				}
 				jsonObject.addProperty("movie_id", movieId);
 				jsonObject.addProperty("movie_title", movieTitle);
 				jsonObject.addProperty("movie_year", movieYear);
@@ -97,7 +103,7 @@ public class SingleStarServlet extends HttpServlet {
 			jsonObject.addProperty("errorMessage", e.getMessage());
 			out.write(jsonObject.toString());
 
-			// set reponse status to 500 (Internal Server Error)
+			// set response status to 500 (Internal Server Error)
 			response.setStatus(500);
 		}
 		out.close();
