@@ -40,8 +40,7 @@ public class MovieListServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            // desc
-            String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId order by rating limit 0, 20";
+            String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0, 20";
             // String query2 = "SELECT * from movies limit 0,2;";
 
             // Perform the query
