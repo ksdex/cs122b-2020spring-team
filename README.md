@@ -3,8 +3,11 @@
 20200405 WJT:
 ### Already done:
  - 修改了movie list的json数据结构
+ 
     -> json嵌套
+    
     -> index从1开始
+    
 
  - 完成movieList跳转SingleStar页面
 
