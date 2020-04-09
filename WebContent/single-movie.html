@@ -18,12 +18,51 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Movie List</title>
+    <style type="text/css">
+        table
+        {
+            border-collapse: collapse;
+            margin: 0 auto;
+            text-align: center;
+        }
+        table td, table th
+        {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+        table thead th
+        {
+            background-color: #CCE8EB;
+            width: 100px;
+        }
+        table tr:nth-child(odd)
+        {
+            background: #fff;
+        }
+        table tr:nth-child(even)
+        {
+            background: #F5FAFA;
+        }
+        backbutton
+        {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid #BBBBBB;
+            border-right: 2px solid #BBBBBB;
+            transform: rotate(-135deg);
+            margin-left: 7px;
+        }
+    </style>
 </head>
 <body>
 
+<h1><a href="index.html"><backbutton></backbutton></a></h1>
+<h1 align="center">Single Movie Page</h1>
 
-<h1>Single Movie Page</h1>
-<a href="index.html">Back</a>
+
 
 <!-- Id "star_table" is useful for jQuery to find the html element with id, class here is mapping to Bootstrap defined class CSS -->
 <table id=movie_table class="table table-striped">
@@ -43,6 +82,7 @@
     <!-- Again, id "star_table_body" is useful for jQuery to find this html element -->
     <tbody id=movie_table_body></tbody>
 </table>
+
 
 <!-- Load jQuery and Bootstrap JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

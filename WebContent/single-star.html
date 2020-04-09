@@ -18,11 +18,53 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Single Star</title>
+
+    <style type="text/css">
+        table
+        {
+            border-collapse: collapse;
+            margin: 0 auto;
+            text-align: center;
+        }
+        table td, table th
+        {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+        table thead th
+        {
+            background-color: #CCE8EB;
+            width: 100px;
+        }
+        table tr:nth-child(odd)
+        {
+            background: #fff;
+        }
+        table tr:nth-child(even)
+        {
+            background: #F5FAFA;
+        }
+        backbutton
+        {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid #BBBBBB;
+            border-right: 2px solid #BBBBBB;
+            transform: rotate(-135deg);
+            margin-left: 7px;
+        }
+    </style>
 </head>
 <body>
-<h1>Single Star Page</h1>
 
-<a href="index.html">Back</a>
+<h1><a href="index.html"><backbutton></backbutton></a></h1>
+<h1 align="center">Single Star Page</h1>
+
+
+
 
 <!-- H3 body is left empty here, will be populated with the data retrieved with single-star.js -->
 <!-- single-star.js will find this html element by it's id "star_info" -->
@@ -33,7 +75,6 @@
         <th>Movie Title</th>
         <th>Release Year</th>
         <th>Director</th>
-        <th>
     </tr>
     </thead>
 
@@ -41,6 +82,7 @@
     <!-- single-star.js will find this html element by it's id "movie_table_body" -->
     <tbody id=movie_table_body></tbody>
 </table>
+
 
 <!-- Load jQuery and Bootstrap JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
