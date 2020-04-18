@@ -14,68 +14,40 @@
  * @param resultData jsonObject
  */
 
-function getParameterByName(target) {
-    // Get request URL
-    let url = window.location.href;
-    // Encode target parameter name to url encoding
-    target = target.replace(/[\[\]]/g, "\\$&");
-
-    // Ues regular expression to find matched parameter value
-    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-
-    // Return the decoded parameter value
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
 
 
 
-function handleMovieResult(resultData) {
+function handleGenreResult(resultData) {
     console.log("handleMovieResult: populating movie table from resultData");
 
     // Populate the movie table
     // Find the empty table body by id "movie_table_body"
     let genreTable = jQuery("#browserGenre");
     let titleTable = jQuery("#browserTitle")
+
+    for (let j = 0; j < 10; j++){
+        let rowHTML2 = "";
+        rowHTML2 += '<li class="titleLinkWrapper"><a class="link" href="index.html?startwith='+j+'">';
+        rowHTML2 += "<span>"+j+"</span>"+ '</a></li>';
+        titleTable.append(rowHTML2);
+    }
+    for (let j = 0; j < 26; j++){
+        let rowHTML2 = "";
+        rowHTML2 += '<li class="titleLinkWrapper"><a class="link" href="index.html?startwith='+ String.fromCharCode(97+j)+'">';
+        rowHTML2 += "<span>"+String.fromCharCode(65+j)+"</span>"+ '</a></li>';
+        titleTable.append(rowHTML2);
+    }
     // Iterate through resultData, no more than 20 entries -> Top 20 rated movies
     for (let i = 0; i < resultData.length; i++) {
         let rowHTML = "";
-
-        rowHTML += '<li class="linkWrapper">';
-        rowHTML +=
-            "<th>" +
-            // Not add link <- Add a link to single-movie.html with id passed with GET url parameter
-            '<a>'
-            + resultData[i]["movie_title"] +     // display movie_name for the link text
-            '</a>' +
-            "</th>";
-
-        rowHTML += "<th>" + resultData[i]['movie_year'] + "</th>";
-        rowHTML += "<th>" + resultData[i]['movie_director'] + "</th>";
-        rowHTML += "<th><ul>";
-        let j = 1;
-        while(resultData[i]['movie_genres'][j] != undefined){
-            rowHTML += '<li>' + resultData[i]['movie_genres'][j];
-            j++;
-        }
-        rowHTML += "</ul></th>";
-
-        rowHTML += "<th><ul>";
-        j = 1;
-        while(resultData[i]['movie_stars'][j] != undefined){
-            rowHTML += '<li><a href="single-star.html?id=' + resultData[i]['movie_stars'][j]["id"] + '">'
-                + resultData[i]['movie_stars'][j]["name"] + '</a>';
-            j++;
+        if(resultData[i]['genre_id'] != undefined){
+            rowHTML += '<li class="genreLinkWrapper"><a class="link" href="index.html?genreid='+resultData[i]['genre_id']+'">';
+            rowHTML += "<span>"+resultData[i]['genre_name']+"</span>"+ '</a></li>';
         }
 
-        rowHTML += "</ul></th>";
-        rowHTML += "<th>" + resultData[i]["movie_rating"] + "</th>";
-        rowHTML += "</tr>";
 
         // Append the row created to the table body, which will refresh the page
-        movieTableBodyElement.append(rowHTML);
+        genreTable.append(rowHTML);
     }
 }
 
@@ -84,13 +56,9 @@ function handleMovieResult(resultData) {
  * Once this .js is loaded, following scripts will be executed by the browser
  */
 
-// Get id from URL
-let movieId = getParameterByName('id');
-
-// Makes the HTTP GET request and registers on success callback function handleStarResult
 jQuery.ajax({
     dataType: "json", // Setting return data type
     method: "GET", // Setting request method
-    url: "api/single-movie?id=" + movieId, // Setting request url, which is mapped by StarsServlet in Stars.java
-    success: (resultData) => handleMovieResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
+    url: "api/mainpage", // Setting request url, which is mapped by StarsServlet in Stars.java
+    success: (resultData) => handleGenreResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
 });

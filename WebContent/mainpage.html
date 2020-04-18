@@ -99,13 +99,25 @@
             margin: 0 0 14px 0;
             padding: 0;
         }
-        .browsingList .linkWrapper {
+        .browsingList .genreLinkWrapper {
             list-style-type: none;
             -webkit-box-flex: 0;
             -webkit-flex: 0 0 25%;
             -moz-box-flex: 0;
             -ms-flex: 0 0 25%;
             flex: 0 0 25%;
+            margin-bottom: 16px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        .browsingList .titleLinkWrapper {
+            list-style-type: none;
+            -webkit-box-flex: 0;
+            -webkit-flex: 0 0 10%;
+            -moz-box-flex: 0;
+            -ms-flex: 0 0 10%;
+            flex: 0 0 10%;
             margin-bottom: 16px;
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
@@ -144,7 +156,7 @@
             <div class="flex">
                 <h3>Browse by genres</h3>
                 <ul class="browsingLinks" id="browserGenre">
-<!--                    <li class="linkWrapper">-->
+<!--                    <li class="genreLinkWrapper">-->
 <!--                        <a class="link" href="index.html">-->
 <!--                            <span>genre</span>-->
 <!--                        </a>-->
@@ -155,7 +167,7 @@
             <div class="flex">
                 <h3>Browse by title</h3>
                 <ul class="browsingLinks" id="browserTitle">
-<!--                    <li class="linkWrapper">-->
+<!--                    <li class="titleLinkWrapper">-->
 <!--                        <a class="link" href="index.html">-->
 <!--                            <span>genre</span>-->
 <!--                        </a>-->
@@ -166,5 +178,11 @@
 
         </div>
     </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script src="mainpage.js"></script>
 </body>
 </html>
