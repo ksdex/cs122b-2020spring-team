@@ -13,6 +13,23 @@
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
  * @param resultData jsonObject
  */
+
+function getParameterByName(target) {
+    // Get request URL
+    let url = window.location.href;
+    // Encode target parameter name to url encoding
+    target = target.replace(/[\[\]]/g, "\\$&");
+
+    // Ues regular expression to find matched parameter value
+    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+
+    // Return the decoded parameter value
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 function handleResult(resultData) {
     console.log("handleStarResult: populating star table from resultData");
 
@@ -21,7 +38,7 @@ function handleResult(resultData) {
     let starTableBodyElement = jQuery("#star_table_body");
 
     // Iterate through resultData, no more than 10 entries
-    for (let i = 0; i < Math.min(20, resultData.length); i++) {
+    for (let i = 0; i < resultData.length; i++) {
 
         let rowHTML = "";
         rowHTML += "<tr>";
@@ -66,11 +83,21 @@ function handleResult(resultData) {
 /**
  * Once this .js is loaded, following scripts will be executed by the browser
  */
-
-// Makes the HTTP GET request and registers on success callback function handleStarResult
-jQuery.ajax({
-    dataType: "json", // Setting return data type
-    method: "GET", // Setting request method
-    url: "api/movieList", // Setting request url, which is mapped by StarsServlet in Stars.java
-    success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
-});
+let genreid = getParameterByName('genreid');
+let startwith = getParameterByName('startwith');
+if(genreid!=null){
+    jQuery.ajax({
+        dataType: "json", // Setting return data type
+        method: "GET", // Setting request method
+        url: "api/movieList?genreid="+genreid, // Setting request url, which is mapped by StarsServlet in Stars.java
+        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
+    });
+}
+else if(startwith!=null){
+    jQuery.ajax({
+        dataType: "json", // Setting return data type
+        method: "GET", // Setting request method
+        url: "api/movieList?startwith="+startwith, // Setting request url, which is mapped by StarsServlet in Stars.java
+        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
+    });
+}
