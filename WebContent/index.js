@@ -85,7 +85,33 @@ function handleResult(resultData) {
  */
 let genreid = getParameterByName('genreid');
 let startwith = getParameterByName('startwith');
-if(genreid!=null){
+let search = getParameterByName('search');
+if(search!=null){
+    let url = "api/movieList?search=true"
+    let title = getParameterByName('title');
+    if(title!=null){
+        url += "&title=" + title;
+    }
+    let year = getParameterByName('year');
+    if(year!=null){
+        url += "&year=" + year;
+    }
+    let director = getParameterByName('director');
+    if(director!=null){
+        url += "&director=" + director;
+    }
+    let starname = getParameterByName('starname');
+    if(starname!=null){
+        url += "&starname=" + starname;
+    }
+    jQuery.ajax({
+        dataType: "json", // Setting return data type
+        method: "GET", // Setting request method
+        url: url, // Setting request url, which is mapped by StarsServlet in Stars.java
+        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
+    });
+}
+else if(genreid!=null){
     jQuery.ajax({
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method

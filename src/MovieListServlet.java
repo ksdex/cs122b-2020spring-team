@@ -30,8 +30,10 @@ public class MovieListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json"); // Response mime type
 
+        String search = request.getParameter("search");
         String genre =  request.getParameter("genreid");
         String startwith = request.getParameter("startwith");
+        System.out.println("code is here");
 
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
@@ -42,17 +44,51 @@ public class MovieListServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
             String query = "SELECT id from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0, 20";
-            if(genre!=null){
+            if(search!=null){
+                System.out.println("search is here");
+                String title = request.getParameter("title");
+                String year = request.getParameter("year");
+                String director = request.getParameter("director");
+                String starname = request.getParameter("starname");
+                String[] strArray={title,director,starname};
+                String[] name={"title","director","starname"};
+                query = "SELECT id as movieid from movies where ";
+                int num = 1;
+                for (int i = 0; i< strArray.length-1; i++){
+                    if(strArray[i]!=null&&strArray.length!=0){
+                        if(num==1){
+                            query += name[i] + "like " + "'%" + strArray[i] + "%'";
+                            num++;
+                        }
+                        else{
+                            query += "and" + name[i] + "like " + "'%" + strArray[i] + "%'";
+                        }
+                    }
+                }
+                if(year!=null&&year.length()!=0){
+                    if(num==1){
+                        query += "year = " + year;
+                    }
+                    else{
+                        query += "and year = " + year;
+                    }
+                }
+            }
+            else{
+                System.out.println("no search");
+                if(genre!=null){
                     query = "SELECT movieid from genres_in_movies where genreId="+genre;
-            }
-            else if(startwith!=null){
-                if(startwith.equals("none")){
-                    query = "select id as movieid from movies where title not REGEXP '^[0-9a-zA-Z]' ";
                 }
-                else{
-                    query = "SELECT id as movieid from movies where title like '" + startwith + "%' or title like '"+startwith.toUpperCase()+"%'";
+                else if(startwith!=null){
+                    if(startwith.equals("none")){
+                        query = "select id as movieid from movies where title not REGEXP '^[0-9a-zA-Z]' ";
+                    }
+                    else{
+                        query = "SELECT id as movieid from movies where title like '" + startwith + "%' or title like '"+startwith.toUpperCase()+"%'";
+                    }
                 }
             }
+
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
 
