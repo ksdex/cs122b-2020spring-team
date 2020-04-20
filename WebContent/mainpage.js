@@ -24,7 +24,7 @@ function handleGenreResult(resultData) {
     // Find the empty table body by id "movie_table_body"
     let genreTable = jQuery("#browserGenre");
     let titleTable = jQuery("#browserTitle")
-
+    let none = "none";
     for (let j = 0; j < 10; j++){
         let rowHTML2 = "";
         rowHTML2 += '<li class="titleLinkWrapper"><a class="link" href="index.html?startwith='+j+'">';
@@ -37,6 +37,10 @@ function handleGenreResult(resultData) {
         rowHTML2 += "<span>"+String.fromCharCode(65+j)+"</span>"+ '</a></li>';
         titleTable.append(rowHTML2);
     }
+    let rowHTML2 = "";
+    rowHTML2 += '<li class="titleLinkWrapper"><a class="link" href="index.html?startwith='+ none +'">';
+    rowHTML2 += "<span>*</span>"+ '</a></li>';
+    titleTable.append(rowHTML2);
     // Iterate through resultData, no more than 20 entries -> Top 20 rated movies
     for (let i = 0; i < resultData.length; i++) {
         let rowHTML = "";
@@ -44,8 +48,6 @@ function handleGenreResult(resultData) {
             rowHTML += '<li class="genreLinkWrapper"><a class="link" href="index.html?genreid='+resultData[i]['genre_id']+'">';
             rowHTML += "<span>"+resultData[i]['genre_name']+"</span>"+ '</a></li>';
         }
-
-
         // Append the row created to the table body, which will refresh the page
         genreTable.append(rowHTML);
     }
