@@ -1,18 +1,3 @@
-/**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs two steps:
- *      1. Use jQuery to talk to backend API to get the json data.
- *      2. Populate the data to correct html elements.
- */
-
-
-/**
- * Handles the data returned by the API, read the jsonObject and populate data into html elements
- * @param resultData jsonObject
- */
 function searchText() {
     // Get request URL
     let title = document.getElementById("title").value.toString();
@@ -32,5 +17,8 @@ function searchText() {
             url += '&' + name[i] + '=' + array[i];
         }
     }
+    // let request = new XMLHttpRequest();
+    // request.open("GET",url);
+    // request.send(null);
     window.location.href=url;
 }
