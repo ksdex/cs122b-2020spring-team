@@ -1,81 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>MainPage</title>
-    <style type="text/css">
-        *{
-            margin: 0;
-            padding: 0;
-        }
-        .bg {
-            background-color: black;
-        }
-        .pinning-header {
-            height: 70px;
-        }
-        .pinning-header .pinning-header-container {
-            left: 0;
-            right: 0;
-            top: 0;
-            position: relative;
-            z-index: 1;
-        }
-        .pinning-header .pinning-header-container .main-header {
-            z-index: 2;
-            height: 41px;
-        }
-        .pinning-header .main-header .logo {
-            text-decoration: none;
-            font-size: 1.8em;
-            color: #E50914;
-            display: inline-block;
-            vertical-align: middle;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-        .pinning-header .secondary-navigation {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -moz-box-align: center;
-            -ms-flex-align: center;
-            align-items: center;
-            -webkit-box-flex: 1;
-            -webkit-flex-grow: 1;
-            -moz-box-flex: 1;
-            -ms-flex-positive: 1;
-            flex-grow: 1;
-            -webkit-box-pack: end;
-            -webkit-justify-content: flex-end;
-            -moz-box-pack: end;
-            -ms-flex-pack: end;
-            justify-content: flex-end;
-            position: absolute;
-            right: 4%;
-            top: 0;
-            height: 100%;
-        }
-        .searchBox {
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 5px;
-        }
-        .pinning-header .pinning-header-container .sub-header {
-            z-index: 1;
-        }
-        .browsingList {
-            display: flex;
-            max-width: 980px;
-            margin: 20px auto 0;
-            padding: 0 4%;
-            color: #808080;
-        }
-        .browsingList .browsingLinks {
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="jumbotron.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <style>
+        .browsingLinks {
             font-size: 13px;
             display: -webkit-box;
             display: -webkit-flex;
@@ -100,7 +37,7 @@
             margin: 0 0 14px 0;
             padding: 0;
         }
-        .browsingList .genreLinkWrapper {
+        .genreLinkWrapper {
             list-style-type: none;
             -webkit-box-flex: 0;
             -webkit-flex: 0 0 25%;
@@ -112,7 +49,7 @@
             -moz-box-sizing: border-box;
             box-sizing: border-box;
         }
-        .browsingList .titleLinkWrapper {
+        .titleLinkWrapper {
             list-style-type: none;
             -webkit-box-flex: 0;
             -webkit-flex: 0 0 10%;
@@ -124,62 +61,71 @@
             -moz-box-sizing: border-box;
             box-sizing: border-box;
         }
-        .browsingList .link {
+        .link {
             color: #808080;
             text-decoration: none;
         }
-        .browsingList .flex{
-            flex: 1;
-        }
     </style>
 </head>
+
 <body>
-    <div class="bg">
-        <div class="pinning-header">
-            <div class="pinning-header-container" style="top: 0px; position:relative; background: transparent;">
-                <div class="main-header">
-                    <p class="logo">Fabflix</p>
-                    <div class="secondary-navigation">
-                        <div class="searchBox">
-                            <button type="button" onclick="javascrtpt:window.location.href='searchpage.html'">Advanced Search</button>
-                        </div>
-                        <div>
-                            <button type="button">Log out</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="sub-header">
 
-                </div>
-            </div>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Fabflix</a>
         </div>
-        <div class="browsingList">
-            <div class="flex">
-                <h3>Browse by genres</h3>
-                <ul class="browsingLinks" id="browserGenre">
-<!--                    <li class="genreLinkWrapper">-->
-<!--                        <a class="link" href="index.html">-->
-<!--                            <span>genre</span>-->
-<!--                        </a>-->
-<!--                    </li>-->
+        <div class="navbar-collapse collapse" id="navbar" style="display: flex">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">Link</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!--/.navbar-collapse -->
+    </div>
+</nav>
 
-                </ul>
-            </div>
-            <div class="flex">
-                <h3>Browse by title</h3>
-                <ul class="browsingLinks" id="browserTitle">
-<!--                    <li class="titleLinkWrapper">-->
-<!--                        <a class="link" href="index.html">-->
-<!--                            <span>genre</span>-->
-<!--                        </a>-->
-<!--                    </li>-->
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <div class="container">
+        <h1>Welcome to Fabflix!</h1>
+        <p>This is a website for movie marketing, it includes lots of interesting movies. Enjoy yourself here.</p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button" onclick="javascrtpt:window.location.href='searchpage.html'">Search for movies &raquo;</a></p>
+    </div>
+</div>
 
-                </ul>
-            </div>
-
+<div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Browsing by genres</h2>
+            <ul class="browsingLinks" id="browserGenre"></ul>
+        </div>
+        <div class="col-md-4">
+            <h2>Brwosing by title</h2>
+            <ul class="browsingLinks" id="browserTitle"></ul>
+        </div>
+        <div class="col-md-4">
+            <h2>View high rating movies</h2>
+            <p>Don't know which one you want? We select 20 top rating movies for you.</p>
+            <p><a class="btn btn-default" href="index.html" role="button">View details &raquo;</a></p>
         </div>
     </div>
 
+    <hr>
+
+    <footer>
+        <p>&copy; 2020 Company, Inc.</p>
+    </footer>
+</div> <!-- /container -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

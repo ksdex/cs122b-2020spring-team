@@ -83,6 +83,7 @@ function handleResult(resultData) {
 /**
  * Once this .js is loaded, following scripts will be executed by the browser
  */
+console.log("javascript is here")
 let genreid = getParameterByName('genreid');
 let startwith = getParameterByName('startwith');
 let search = getParameterByName('search');
@@ -124,6 +125,15 @@ else if(startwith!=null){
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method
         url: "api/movieList?startwith="+startwith, // Setting request url, which is mapped by StarsServlet in Stars.java
+        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
+    });
+}
+else{
+    console.log("everything is null");
+    jQuery.ajax({
+        dataType: "json", // Setting return data type
+        method: "GET", // Setting request method
+        url: "api/movieList", // Setting request url, which is mapped by StarsServlet in Stars.java
         success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
     });
 }
