@@ -67,6 +67,10 @@ function sortByItem(item){
             "secondSort": clickSortOrder[1], "secSortOrder": handleSortOrder(clickSort[clickSortOrder[1]])};
     }
 
+    let parameterSet = getAllParameter();
+    console.log(parameterSet);
+    dataSet = Object.assign(dataSet, parameterSet);
+
     console.log(dataSet);
 
     // update page
@@ -124,6 +128,24 @@ function getParameterByName(target) {
     // Return the decoded parameter value
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
+
+function getAllParameter(){
+    let url = window.location.href;
+    if(url.indexOf("?") == -1){
+        return null;
+    }
+    url = url.split("?")[1];
+    url = url.split("&");
+    let result = {};
+    for(let i = 0; i < url.length; i++){
+        let temp = url[i].split("=");
+        result[temp[0]] = temp[1];
+    }
+    return result;
+}
+
+
 
 function handleResult(resultData) {
     console.log("handleStarResult: populating star table from resultData");
