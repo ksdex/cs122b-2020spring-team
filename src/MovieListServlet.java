@@ -24,6 +24,12 @@ public class MovieListServlet extends HttpServlet {
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
 
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
+
+
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
@@ -33,6 +39,25 @@ public class MovieListServlet extends HttpServlet {
         String search = request.getParameter("search");
         String genre =  request.getParameter("genreid");
         String startwith = request.getParameter("startwith");
+
+        String firstSort = request.getParameter("firstSort");
+        String firstSortOrder = request.getParameter("firSortOrder");
+        String secondSort = request.getParameter("secondSort");
+        String secondSortOrder = request.getParameter("secSortOrder");
+        String order = "";
+        if (firstSort==null){
+            order += " order by rating desc";
+        }
+        else{
+            System.out.println("Get here");
+            order += " order by " + firstSort + " " + firstSortOrder;
+            if(secondSort!=null){
+                order += ", " + secondSort + " " + secondSortOrder;
+            }
+        }
+
+        System.out.println(order);
+
         System.out.println("code is here");
 
         // Output stream to STDOUT
@@ -43,7 +68,7 @@ public class MovieListServlet extends HttpServlet {
 
             // Declare our statement
             Statement statement = dbcon.createStatement();
-            String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0, 20";
+            String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId" + order + " limit 0,20";
             if(search!=null){
                 System.out.println("search is here");
                 String starname = request.getParameter("starname");
@@ -101,7 +126,7 @@ public class MovieListServlet extends HttpServlet {
                             String id = starrs.getString("movieid");
                             Statement statement2 = dbcon.createStatement();
                             ResultSet rs2 = statement2.executeQuery(
-                                    "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'");
+                                    "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'" + order);
 
                             while(rs2.next()){
                                 JsonObject jsonObject = new JsonObject();
@@ -117,9 +142,13 @@ public class MovieListServlet extends HttpServlet {
                                 jsonObject.addProperty("movie_rating", movie_rating);
                                 Statement statement3 = dbcon.createStatement();
                                 ResultSet rs3 = statement3.executeQuery(
-                                        "select * from movies,stars,stars_in_movies" +
-                                                " where stars.id=stars_in_movies.starId and stars_in_movies.movieId=movies.id" +
-                                                " and movies.id= '" + movie_id + "'");
+                                        "select sim.starId, siom.name, count(sim.starId) from stars_in_movies as sim, (" +
+                                                "select starId, name from movies,stars,stars_in_movies where stars.id=stars_in_movies.starId " +
+                                                "and stars_in_movies.movieId=movies.id and movies.id='" + movie_id + "' " +
+                                                ")as siom " + // siom: stars_in_one_movie
+                                                "where sim.starId = siom.starId " +
+                                                "group by sim.starId " +
+                                                "order by count(sim.starId) desc, siom.name");
                                 JsonObject starsJsonObject = new JsonObject();
                                 int count = 1;
                                 while(rs3.next()){
@@ -137,11 +166,14 @@ public class MovieListServlet extends HttpServlet {
                                 ResultSet rs4 = statement4.executeQuery(
                                         "select * from movies,genres,genres_in_movies" +
                                                 " where genres.id=genres_in_movies.genreId and genres_in_movies.movieId=movies.id" +
-                                                " and movies.id='" + movie_id + "'");
+                                                " and movies.id='" + movie_id + "' order by genres.name");
                                 JsonObject genresJsonObject = new JsonObject();
                                 count = 1;
                                 while(rs4.next()){
-                                    genresJsonObject.addProperty(Integer.toString(count), rs4.getString("name"));
+                                    JsonObject oneGenresJsonObject = new JsonObject();
+                                    oneGenresJsonObject.addProperty("name", rs4.getString("name"));
+                                    oneGenresJsonObject.addProperty("genreId", rs4.getString("genreId"));
+                                    genresJsonObject.add(Integer.toString(count), oneGenresJsonObject);
                                     count += 1;
                                 }
                                 jsonObject.add("movie_genres", genresJsonObject);
@@ -210,7 +242,7 @@ public class MovieListServlet extends HttpServlet {
                 String id = rs.getString("movieid");
                 Statement statement2 = dbcon.createStatement();
                 ResultSet rs2 = statement2.executeQuery(
-                        "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'");
+                        "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'" + order);
 
                 while(rs2.next()){
                     JsonObject jsonObject = new JsonObject();
@@ -226,9 +258,13 @@ public class MovieListServlet extends HttpServlet {
                     jsonObject.addProperty("movie_rating", movie_rating);
                     Statement statement3 = dbcon.createStatement();
                     ResultSet rs3 = statement3.executeQuery(
-                            "select * from movies,stars,stars_in_movies" +
-                                    " where stars.id=stars_in_movies.starId and stars_in_movies.movieId=movies.id" +
-                                    " and movies.id= '" + movie_id + "'");
+                            "select sim.starId, siom.name, count(sim.starId) from stars_in_movies as sim, (" +
+                                    "select starId, name from movies,stars,stars_in_movies where stars.id=stars_in_movies.starId " +
+                                    "and stars_in_movies.movieId=movies.id and movies.id='" + movie_id + "' " +
+                                    ")as siom " + // siom: stars_in_one_movie
+                                    "where sim.starId = siom.starId " +
+                                    "group by sim.starId " +
+                                    "order by count(sim.starId) desc, siom.name");
                     JsonObject starsJsonObject = new JsonObject();
                     int count = 1;
                     while(rs3.next()){
@@ -246,11 +282,14 @@ public class MovieListServlet extends HttpServlet {
                     ResultSet rs4 = statement4.executeQuery(
                             "select * from movies,genres,genres_in_movies" +
                                     " where genres.id=genres_in_movies.genreId and genres_in_movies.movieId=movies.id" +
-                                    " and movies.id='" + movie_id + "'");
+                                    " and movies.id='" + movie_id + "' order by genres.name" );
                     JsonObject genresJsonObject = new JsonObject();
                     count = 1;
                     while(rs4.next()){
-                        genresJsonObject.addProperty(Integer.toString(count), rs4.getString("name"));
+                        JsonObject oneGenresJsonObject = new JsonObject();
+                        oneGenresJsonObject.addProperty("name", rs4.getString("name"));
+                        oneGenresJsonObject.addProperty("genreId", rs4.getString("genreId"));
+                        genresJsonObject.add(Integer.toString(count), oneGenresJsonObject);
                         count += 1;
                     }
                     jsonObject.add("movie_genres", genresJsonObject);

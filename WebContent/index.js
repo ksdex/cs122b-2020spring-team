@@ -14,6 +14,101 @@
  * @param resultData jsonObject
  */
 
+let clickSort = {"Title": 0, "Rating": 0} // 0: desc; 1: asc
+let clickSortOrder = [];
+
+function sortByItem(item){
+    let order = "";
+
+    let sortLen = clickSortOrder.length;
+    console.log(sortLen);
+    console.log(sortLen == 0);
+
+    if(sortLen != 0){
+        if(clickSortOrder[sortLen - 1] != item){
+            clickSortOrder.push(item);
+            console.log("Push " + item);
+            console.log(clickSortOrder);
+        }
+    }
+    else{
+        clickSortOrder.push(item);
+        console.log("Push " + item);
+        console.log(clickSortOrder);
+    }
+
+
+    // change page
+    if(clickSort[item] == 0){
+        $("#" + item).text(item + " ↓");
+        clickSort[item] = 1;
+        order = "desc";
+        console.log("?" + item + "↓");
+    }
+    else{
+        $("#" + item).text(item + " ↑");
+        clickSort[item] = 0;
+        order = "asc";
+        console.log("?" + item + "↑");
+    }
+
+    // If the current page has parameters
+    let dataSet = {};
+    sortLen = clickSortOrder.length;
+    if(sortLen >= 3){
+        // remove the first sort element
+        clickSortOrder.shift();
+    }
+    if(sortLen == 1){
+        dataSet = {"firstSort": clickSortOrder[0], "firSortOrder": handleSortOrder(clickSort[clickSortOrder[0]])};
+    }
+    else{
+        dataSet = {"firstSort": clickSortOrder[0], "firSortOrder": handleSortOrder(clickSort[clickSortOrder[0]]),
+            "secondSort": clickSortOrder[1], "secSortOrder": handleSortOrder(clickSort[clickSortOrder[1]])};
+    }
+
+    console.log(dataSet);
+
+    // update page
+    if(dataSet != {}) {
+        $.ajax(
+            "api/movieList", {
+                method: "POST",
+                data: dataSet,
+                success: (resultData) => handleSortResult(resultData)
+            }
+        );
+    }
+}
+
+
+function sortByRating(){
+    sortByItem("Rating");
+}
+
+
+function sortByTitle(){
+    sortByItem("Title");
+}
+
+
+function handleSortOrder(i){
+    if(i == 1){
+        return "desc";
+    }
+    else{
+        return "asc";
+    }
+}
+
+
+function handleSortResult(resultData){
+    let starTableBodyElement = jQuery("#star_table_body");
+    starTableBodyElement.text("");
+    handleResult(resultData);
+}
+
+
 function getParameterByName(target) {
     // Get request URL
     let url = window.location.href;
@@ -54,11 +149,14 @@ function handleResult(resultData) {
         rowHTML += "<th>" + resultData[i]['movie_year'] + "</th>";
         rowHTML += "<th>" + resultData[i]['movie_director'] + "</th>";
         rowHTML += "<th><ul>";
+        let genreHTML = "";
         for(let j = 1; j<4; j++){
             if(resultData[i]['movie_genres'][j] != undefined) {
-                rowHTML += '<li>' + '<a href="single-movie.html?genreid=' + resultData[i]['movie_genres'][j];
+                genreHTML += '<li><a href="index.html?genreid=' + resultData[i]['movie_genres'][j]['genreId'] + '">' +
+                            resultData[i]['movie_genres'][j]['name'] + "</a>";
             }
         }
+        rowHTML += genreHTML
         rowHTML += "</ul></th>";
 
         // add stars
