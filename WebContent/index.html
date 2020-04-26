@@ -55,26 +55,26 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand">Fabflix</a>
+            <a class="navbar-brand" href="mainpage.html">Fabflix</a>
         </div>
         <div class="navbar-collapse collapse" id="navbar" style="display: flex">
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">First Sort by <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a onclick="">Title ▲</a></li>
-                        <li><a onclick="">Title ▼</a></li>
-                        <li><a onclick="">Rating ▲</a></li>
-                        <li><a onclick="">Rating ▼</a></li>
+                        <li><a onclick="sortByItem('Title', 0, 1)">Title ▲</a></li>
+                        <li><a onclick="sortByItem('Title', 0, 0)">Title ▼</a></li>
+                        <li><a onclick="sortByItem('Rating', 0, 1)">Rating ▲</a></li>
+                        <li><a onclick="sortByItem('Rating', 0, 0)">Rating ▼</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Then Sort by <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a onclick="">Title ▲</a></li>
-                        <li><a onclick="">Title ▼</a></li>
-                        <li><a onclick="">Rating ▲</a></li>
-                        <li><a onclick="">Rating ▼</a></li>
+                        <li><a onclick="sortByItem('Title', 1, 1)">Title ▲</a></li>
+                        <li><a onclick="sortByItem('Title', 1, 0)">Title ▼</a></li>
+                        <li><a onclick="sortByItem('Rating', 1, 1)">Rating ▲</a></li>
+                        <li><a onclick="sortByItem('Rating', 1, 0)">Rating ▼</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -98,12 +98,12 @@
             <thead>
             <tr>
                 <!-- Titles of each column-->
-                <th id="Title" onClick="sortByTitle()">Title</th>
+                <th id="Title">Title</th>
                 <th>Year</th>
                 <th>Director</th>
                 <th>Genres</th>
                 <th>Stars</th>
-                <th id="Rating" onclick="sortByRating()">Rating</th>
+                <th id="Rating">Rating</th>
             </tr>
             </thead>
             <!-- Table body is left empty here, will be populated with the data retrieved with index.js -->

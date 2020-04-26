@@ -14,90 +14,78 @@
  * @param resultData jsonObject
  */
 
-let clickSort = {"Title": 0, "Rating": 0} // 0: desc; 1: asc
-let clickSortOrder = [];
 
-function sortByItem(item){
-    let order = "";
+let listSortOrder = ["noSort", -1, "noSort", -1];
 
-    let sortLen = clickSortOrder.length;
-    console.log(sortLen);
-    console.log(sortLen == 0);
-
-    if(sortLen != 0){
-        if(clickSortOrder[sortLen - 1] != item){
-            clickSortOrder.push(item);
-            console.log("Push " + item);
-            console.log(clickSortOrder);
-        }
+function theOtherSort(item){
+    if(item == "Rating"){
+        return "Title";
     }
     else{
-        clickSortOrder.push(item);
-        console.log("Push " + item);
-        console.log(clickSortOrder);
+        return "Rating";
     }
+}
 
-
-    // change page
-    if(clickSort[item] == 0){
+function updateList(item, order){
+    if(order == 0){
         $("#" + item).text(item + " ↓");
-        clickSort[item] = 1;
-        order = "desc";
-        console.log("?" + item + "↓");
     }
     else{
         $("#" + item).text(item + " ↑");
-        clickSort[item] = 0;
-        order = "asc";
-        console.log("?" + item + "↑");
     }
-
-    // If the current page has parameters
-    let dataSet = {};
-    sortLen = clickSortOrder.length;
-    if(sortLen >= 3){
-        // remove the first sort element
-        clickSortOrder.shift();
-    }
-    if(sortLen == 1){
-        dataSet = {"firstSort": clickSortOrder[0], "firSortOrder": handleSortOrder(clickSort[clickSortOrder[0]])};
-    }
-    else{
-        dataSet = {"firstSort": clickSortOrder[0], "firSortOrder": handleSortOrder(clickSort[clickSortOrder[0]]),
-            "secondSort": clickSortOrder[1], "secSortOrder": handleSortOrder(clickSort[clickSortOrder[1]])};
-    }
-
-    let parameterSet = getAllParameter();
-    console.log(parameterSet);
-    dataSet = Object.assign(dataSet, parameterSet);
-
-    console.log(dataSet);
-
-    // update page
-    if(dataSet != {}) {
-        $.ajax(
-            "api/movieList", {
-                method: "POST",
-                data: dataSet,
-                success: (resultData) => handleSortResult(resultData)
-            }
-        );
+    if(listSortOrder[2] == "noSort"){
+        $("#" + theOtherSort(item)).text(theOtherSort(item));
     }
 }
 
 
-function sortByRating(){
-    sortByItem("Rating");
-}
+function sortByItem(item, sortOrder, order){
+    listSortOrder[sortOrder*2] = item;
+    listSortOrder[sortOrder*2 + 1] = handleSortOrder(order);
 
+    console.log(listSortOrder);
+    updateList(item, order);
+    if(listSortOrder[0] != "noSort") {
 
-function sortByTitle(){
-    sortByItem("Title");
+        // If the current page has parameters
+        let dataSet = {};
+        let temp;
+        if (listSortOrder[0] != "noSort") {
+            temp = listSortOrder[0];
+            dataSet["firstSort"] = temp.replace(temp[0], temp[0].toLowerCase());
+            ;
+            dataSet["firSortOrder"] = listSortOrder[1];
+        }
+        if (listSortOrder[2] != "noSort") {
+            temp = listSortOrder[2];
+            dataSet["secondSort"] = temp.replace(temp[0], temp[0].toLowerCase());
+            ;
+            ;
+            dataSet["secSortOrder"] = listSortOrder[3];
+        }
+
+        let parameterSet = getAllParameter();
+        console.log(parameterSet);
+        dataSet = Object.assign(dataSet, parameterSet);
+
+        console.log(dataSet);
+
+        // update page
+        if (dataSet != {}) {
+            $.ajax(
+                "api/movieList", {
+                    method: "POST",
+                    data: dataSet,
+                    success: (resultData) => handleSortResult(resultData)
+                }
+            );
+        }
+    }
 }
 
 
 function handleSortOrder(i){
-    if(i == 1){
+    if(i == 0){
         return "desc";
     }
     else{
@@ -154,7 +142,7 @@ function handleResult(resultData) {
     // Find the empty table body by id "star_table_body"
     let starTableBodyElement = jQuery("#star_table_body");
 
-    // Iterate through resultData, no more than 10 entries
+        // Iterate through resultData, no more than 10 entries
     for (let i = 0; i < resultData.length; i++) {
 
         let rowHTML = "";

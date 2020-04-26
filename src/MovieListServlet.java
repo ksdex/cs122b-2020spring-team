@@ -71,20 +71,27 @@ public class MovieListServlet extends HttpServlet {
             String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId" + order + " limit 0,20";
             if(search!=null){
                 System.out.println("search is here");
-                String starname = request.getParameter("starname").replace("%20", " ");
+                String starname = request.getParameter("starname");
+                System.out.println("Line 75: " + starname);
+                // System.out.println(starname.indexOf("%20"));
+                if(starname != null && starname.indexOf("%20") != -1){
+                    starname = starname.replace("%20", " ");
+                }
                 String title = request.getParameter("title");
                 String year = request.getParameter("year");
                 String director = request.getParameter("director");
 
                 String[] strArray={title,director};
                 String[] name={"title","director"};
+                System.out.println("Line 81");
                 if(starname!=null&&starname.length()!=0){
                     JsonArray jsonArray = new JsonArray();
-                    int onlyStarFlag=0;
+                    int onlyStarFlag = 0;
                     if(title!=null||year!=null||director!=null){
                         query = "SELECT id as movieid from (select m.id, m.title, m.year, m.director  from movies as m, ratings as r " +
                                 "where m.id = ratings.Id " + order + ") as m where ";
                         int num = 1;
+                        System.out.println("Line 88");
                         for (int i = 0; i< strArray.length; i++){
                             if(strArray[i]!=null&&strArray[i].length()!=0){
                                 if(num==1){
@@ -108,15 +115,17 @@ public class MovieListServlet extends HttpServlet {
                     else{
                         onlyStarFlag = 1;
                     }
+                    System.out.println("line 111");
 
                     Statement statement0 = dbcon.createStatement();
                     ResultSet rs0 = statement0.executeQuery(
-                            "SELECT m.movieid, r.rating as Rating, mo.title as Title from (SELECT movieId as movieid from stars_in_movies, stars" +
+                            "SELECT m.movieid, r.rating, mo.title as Title from (SELECT movieId as movieid from stars_in_movies, stars" +
                                                        " where stars_in_movies.starId = stars.id" +
                                                        " and stars.name like '%"+starname+"%') as m, ratings as r, movies as mo" +
                                     " where m.movieid = r.movieId" +
                                     " and mo.id = r.movieId " + order
                             );
+                    System.out.println("line 120");
                     while(rs0.next()){
                         String mid = rs0.getString("movieid");
                         String query2="";
@@ -204,6 +213,7 @@ public class MovieListServlet extends HttpServlet {
                     query = "SELECT id as movieid from (select m.id, m.title, m.year, m.director from movies as m, ratings as r " +
                             "where m.id = r.movieId " + order + ") as m where ";
                     int num = 1;
+                    System.out.println("Line 211");
                     for (int i = 0; i< strArray.length; i++){
                         if(strArray[i]!=null&&strArray[i].length()!=0){
                             if(num==1){
@@ -215,6 +225,7 @@ public class MovieListServlet extends HttpServlet {
                             }
                         }
                     }
+                    System.out.println("Line 223");
                     if(year!=null&&year.length()!=0){
                         if(num==1){
                             query += "year = " + year;
@@ -223,19 +234,23 @@ public class MovieListServlet extends HttpServlet {
                             query += " and year = " + year;
                         }
                     }
+                    System.out.println("Line 232");
                 }
             }
             else{
                 System.out.println("no search");
                 if(genre!=null){
-                    query = "SELECT movieid from genres_in_movies where genreId="+genre;
+                    query = "select g.movieid from (SELECT movieid from genres_in_movies where genreId="+genre + ") as g, movies as m, ratings as r " +
+                            "where m.id = g.movieid and m.id = r.movieId " + order;
                 }
                 else if(startwith!=null){
                     if(startwith.equals("none")){
-                        query = "select id as movieid from movies where title not REGEXP '^[0-9a-zA-Z]' ";
+                        query = "select m.id from (select id, title as movieid from movies where title not REGEXP '^[0-9a-zA-Z]') as m, ratings as r " +
+                                "where m.id = r.movieId " + order;
                     }
                     else{
-                        query = "SELECT id as movieid from movies where title like '" + startwith + "%' or title like '"+startwith.toUpperCase()+"%'";
+                        query = "select m.id (SELECT id, title as movieid from movies where title like '" + startwith + "%' or " +
+                                "title like '"+startwith.toUpperCase()+"%') as m, ratings as r where m.id = r.movieId " + order;
                     }
                 }
             }
@@ -249,7 +264,7 @@ public class MovieListServlet extends HttpServlet {
                 String id = rs.getString("movieid");
                 Statement statement2 = dbcon.createStatement();
                 ResultSet rs2 = statement2.executeQuery(
-                        "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'" + order);
+                        "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'" );
 
                 while(rs2.next()){
                     JsonObject jsonObject = new JsonObject();
@@ -320,7 +335,7 @@ public class MovieListServlet extends HttpServlet {
             // write error message JSON object to output
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("errorMessage", e.getMessage());
-            System.out.println(e.getMessage());
+            System.out.println("Error: " + e.getMessage());
             out.write(jsonObject.toString());
 
             // set response status to 500 (Internal Server Error)
