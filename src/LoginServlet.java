@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet {
         try {
             dbcon = dataSource.getConnection();
             Statement statement = dbcon.createStatement();
-            String query = "SELECT password from users where email = '"+email+"'";
+            String query = "SELECT password from customers where email = '"+email+"'";
             ResultSet rs = statement.executeQuery(query);
             if(!rs.next()){
                 responseJsonObject.addProperty("status", "fail");

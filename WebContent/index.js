@@ -56,7 +56,7 @@ function handleResult(resultData) {
         rowHTML += "<th><ul>";
         for(let j = 1; j<4; j++){
             if(resultData[i]['movie_genres'][j] != undefined) {
-                rowHTML += '<li>' + resultData[i]['movie_genres'][j];
+                rowHTML += '<li>' + '<a href="single-movie.html?genreid=' + resultData[i]['movie_genres'][j];
             }
         }
         rowHTML += "</ul></th>";

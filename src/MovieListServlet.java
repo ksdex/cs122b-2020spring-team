@@ -43,7 +43,7 @@ public class MovieListServlet extends HttpServlet {
 
             // Declare our statement
             Statement statement = dbcon.createStatement();
-            String query = "SELECT id from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0, 20";
+            String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId order by rating desc limit 0, 20";
             if(search!=null){
                 System.out.println("search is here");
                 String starname = request.getParameter("starname");
