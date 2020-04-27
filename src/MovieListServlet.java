@@ -45,15 +45,25 @@ public class MovieListServlet extends HttpServlet {
         String secondSort = request.getParameter("secondSort");
         String secondSortOrder = request.getParameter("secSortOrder");
         String order = "";
-        if (firstSort==null){
+        if (firstSort == null){
             order += " order by rating desc";
         }
         else{
             System.out.println("Get here");
             order += " order by " + firstSort + " " + firstSortOrder;
-            if(secondSort!=null){
+            if(secondSort != null){
                 order += ", " + secondSort + " " + secondSortOrder;
             }
+        }
+
+        String offset = request.getParameter("offset");
+        String itemNum = request.getParameter("itemNum");
+        String limit = "";
+        if(offset == null) {
+            limit += " limit 20 offset 0";
+        }
+        else{
+            limit += " limit " + itemNum + " offset " + offset;
         }
 
         System.out.println(order);
@@ -68,7 +78,7 @@ public class MovieListServlet extends HttpServlet {
 
             // Declare our statement
             Statement statement = dbcon.createStatement();
-            String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId" + order + " limit 0,20";
+            String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId" + order + limit;
             if(search!=null){
                 System.out.println("search is here");
                 String starname = request.getParameter("starname");
@@ -111,6 +121,7 @@ public class MovieListServlet extends HttpServlet {
                                 query += " and year = " + year;
                             }
                         }
+                        query += limit;
                     }
                     else{
                         onlyStarFlag = 1;
@@ -123,7 +134,7 @@ public class MovieListServlet extends HttpServlet {
                                                        " where stars_in_movies.starId = stars.id" +
                                                        " and stars.name like '%"+starname+"%') as m, ratings as r, movies as mo" +
                                     " where m.movieid = r.movieId" +
-                                    " and mo.id = r.movieId " + order
+                                    " and mo.id = r.movieId " + order + limit
                             );
                     System.out.println("line 120");
                     while(rs0.next()){
@@ -235,22 +246,23 @@ public class MovieListServlet extends HttpServlet {
                         }
                     }
                     System.out.println("Line 232");
+                    query += limit;
                 }
             }
             else{
                 System.out.println("no search");
                 if(genre!=null){
                     query = "select g.movieid from (SELECT movieid from genres_in_movies where genreId="+genre + ") as g, movies as m, ratings as r " +
-                            "where m.id = g.movieid and m.id = r.movieId " + order;
+                            "where m.id = g.movieid and m.id = r.movieId " + order + limit;
                 }
                 else if(startwith!=null){
                     if(startwith.equals("none")){
                         query = "select m.id from (select id, title as movieid from movies where title not REGEXP '^[0-9a-zA-Z]') as m, ratings as r " +
-                                "where m.id = r.movieId " + order;
+                                "where m.id = r.movieId " + order + limit;
                     }
                     else{
                         query = "select m.id (SELECT id, title as movieid from movies where title like '" + startwith + "%' or " +
-                                "title like '"+startwith.toUpperCase()+"%') as m, ratings as r where m.id = r.movieId " + order;
+                                "title like '"+startwith.toUpperCase()+"%') as m, ratings as r where m.id = r.movieId " + order + limit;
                     }
                 }
             }

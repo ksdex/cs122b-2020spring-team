@@ -14,93 +14,8 @@
  * @param resultData jsonObject
  */
 
-
-let listSortOrder = ["noSort", -1, "noSort", -1];
-
-function theOtherSort(item){
-    if(item == "Rating"){
-        return "Title";
-    }
-    else{
-        return "Rating";
-    }
-}
-
-function updateList(item, order){
-    if(order == 0){
-        $("#" + item).text(item + " ↓");
-    }
-    else{
-        $("#" + item).text(item + " ↑");
-    }
-    if(listSortOrder[2] == "noSort"){
-        $("#" + theOtherSort(item)).text(theOtherSort(item));
-    }
-}
-
-
-function sortByItem(item, sortOrder, order){
-    listSortOrder[sortOrder*2] = item;
-    listSortOrder[sortOrder*2 + 1] = handleSortOrder(order);
-
-    console.log(listSortOrder);
-    updateList(item, order);
-    if(listSortOrder[0] != "noSort") {
-
-        // If the current page has parameters
-        let dataSet = {};
-        let temp;
-        if (listSortOrder[0] != "noSort") {
-            temp = listSortOrder[0];
-            dataSet["firstSort"] = temp.replace(temp[0], temp[0].toLowerCase());
-            ;
-            dataSet["firSortOrder"] = listSortOrder[1];
-        }
-        if (listSortOrder[2] != "noSort") {
-            temp = listSortOrder[2];
-            dataSet["secondSort"] = temp.replace(temp[0], temp[0].toLowerCase());
-            ;
-            ;
-            dataSet["secSortOrder"] = listSortOrder[3];
-        }
-
-        let parameterSet = getAllParameter();
-        console.log(parameterSet);
-        dataSet = Object.assign(dataSet, parameterSet);
-
-        console.log(dataSet);
-
-        // update page
-        if (dataSet != {}) {
-            $.ajax(
-                "api/movieList", {
-                    method: "POST",
-                    data: dataSet,
-                    success: (resultData) => handleSortResult(resultData)
-                }
-            );
-        }
-    }
-}
-
-
-function handleSortOrder(i){
-    if(i == 0){
-        return "desc";
-    }
-    else{
-        return "asc";
-    }
-}
-
-
-function handleSortResult(resultData){
-    let starTableBodyElement = jQuery("#star_table_body");
-    starTableBodyElement.text("");
-    handleResult(resultData);
-}
-
-
+// #######################################
+// Helper function
 function getParameterByName(target) {
     // Get request URL
     let url = window.location.href;
@@ -134,6 +49,146 @@ function getAllParameter(){
 }
 
 
+function sendCurAndMoreParam(dataSet){
+    let parameterSet = getAllParameter();
+    console.log(parameterSet);
+    dataSet = Object.assign(dataSet, parameterSet);
+
+    console.log(dataSet);
+
+    // update page
+    if (dataSet != {}) {
+        $.ajax(
+            "api/movieList", {
+                method: "POST",
+                data: dataSet,
+                success: (resultData) => handleSortResult(resultData)
+            }
+        );
+    }
+}
+
+// ################################################
+// Global variable
+
+let listSortOrder = ["noSort", -1, "noSort", -1];
+let pageViewItem = 20;
+let reachEnd = 0; // 0: false; 1: true
+
+// ################################################
+// Task 3: Previous/Next
+function changePageViewItem(numItem){
+    pageViewItem = numItem;
+    let currentPageNum = Number(document.getElementById("curPage").innerText);
+    let offset = (currentPageNum-1) * numItem;
+    let dataSet = {"offset": offset, "itemNum": numItem};
+    console.log(dataSet);
+    sendCurAndMoreParam(dataSet);
+}
+
+
+function jumpPrevPage(){
+    let currentPageNum = Number(document.getElementById("curPage").innerText);
+
+    console.log(reachEnd);
+    if(reachEnd == 1){
+        reachEnd = 0;
+        document.getElementById("nextPage").disabled = false;
+    }
+
+
+    if(currentPageNum > 1){
+        document.getElementById("prevPage").disabled = false;
+        $("#curPage").text(currentPageNum-1);
+        if(currentPageNum-1 <= 1){
+            document.getElementById("prevPage").disabled = true;
+        }
+        changePageViewItem(pageViewItem);
+    }
+    else{
+        document.getElementById("prevPage").disabled = true;
+    }
+}
+
+
+function jumpNextPage(){
+    document.getElementById("prevPage").disabled = false;
+    let currentPageNum = Number(document.getElementById("curPage").innerText);
+    $("#curPage").text(currentPageNum+1);
+    changePageViewItem(pageViewItem);
+}
+
+
+
+// ################################################
+// Task 3: Sort
+
+function theOtherSort(item){
+    if(item == "Rating"){
+        return "Title";
+    }
+    else{
+        return "Rating";
+    }
+}
+
+function updateList(item, order){
+    if(order == 0){
+        $("#" + item).text(item + " ↓");
+    }
+    else{
+        $("#" + item).text(item + " ↑");
+    }
+    if(listSortOrder[2] == "noSort"){
+        $("#" + theOtherSort(item)).text(theOtherSort(item));
+    }
+}
+
+
+function sortByItem(item, sortOrder, order){
+    listSortOrder[sortOrder*2] = item;
+    listSortOrder[sortOrder*2 + 1] = handleSortOrder(order);
+    console.log(listSortOrder);
+    updateList(item, order);
+    if(listSortOrder[0] != "noSort") {
+        // If the current page has parameters
+        let dataSet = {};
+        let temp;
+        if (listSortOrder[0] != "noSort") {
+            temp = listSortOrder[0];
+            dataSet["firstSort"] = temp.replace(temp[0], temp[0].toLowerCase());
+            dataSet["firSortOrder"] = listSortOrder[1];
+        }
+        if (listSortOrder[2] != "noSort") {
+            temp = listSortOrder[2];
+            dataSet["secondSort"] = temp.replace(temp[0], temp[0].toLowerCase());
+            dataSet["secSortOrder"] = listSortOrder[3];
+        }
+        sendCurAndMoreParam(dataSet);
+    }
+}
+
+
+function handleSortOrder(i){
+    if(i == 0){
+        return "desc";
+    }
+    else{
+        return "asc";
+    }
+}
+
+
+function handleSortResult(resultData){
+    let starTableBodyElement = jQuery("#star_table_body");
+    starTableBodyElement.text("");
+    console.log("Clear");
+    handleResult(resultData);
+}
+
+
+// ################################################
+// Handle page
 
 function handleResult(resultData) {
     console.log("handleStarResult: populating star table from resultData");
@@ -185,6 +240,16 @@ function handleResult(resultData) {
         // Append the row created to the table body, which will refresh the page
         starTableBodyElement.append(rowHTML);
     }
+
+    console.log(resultData.length);
+    console.log(pageViewItem);
+    console.log(resultData.length <= pageViewItem.valueOf());
+
+    if(resultData.length < pageViewItem.valueOf()){
+        reachEnd = 1;
+        document.getElementById("nextPage").disabled = true;
+    }
+
 }
 
 

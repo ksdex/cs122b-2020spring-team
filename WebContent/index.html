@@ -80,10 +80,10 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">View Numbers<span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a onclick="">10</a></li>
-                        <li><a onclick="">25</a></li>
-                        <li><a onclick="">50</a></li>
-                        <li><a onclick="">100</a></li>
+                        <li><a onclick="changePageViewItem(10)">10</a></li>
+                        <li><a onclick="changePageViewItem(25)">25</a></li>
+                        <li><a onclick="changePageViewItem(50)">50</a></li>
+                        <li><a onclick="changePageViewItem(100)">100</a></li>
                     </ul>
                 </li>
             </ul>
@@ -110,8 +110,14 @@
             <!-- Again, id "star_table_body" is useful for jQuery to find this html element -->
             <tbody id=star_table_body></tbody>
         </table>
+        <div class="pagination" style="padding-left: 40%">
+             <button id="prevPage" onClick="jumpPrevPage()" style="background-color: #EEEEEE; border:0px" disabled="disabled"> Prev </button> &nbsp; | &nbsp;
+             <a id="curPage" style="color: #335897">1</a>
+            &nbsp; | &nbsp; <button id="nextPage" onclick="jumpNextPage()" style="background-color: #EEEEEE; border:0px"> Next </button>
+        </div>
     </div>
 </div>
+
 
 
 
