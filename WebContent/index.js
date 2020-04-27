@@ -48,6 +48,10 @@ function getAllParameter(){
     return result;
 }
 
+function initUpper(s){
+    return s[0].toUpperCase() + s.substring(1, s.length);
+}
+
 
 function sendCurAndMoreParam(){
     let parameterSet = getAllParameter();
@@ -216,7 +220,6 @@ function handleResult(resultData) {
 
         // Iterate through resultData, no more than 10 entries
     for (let i = 0; i < resultData.length; i++) {
-
         let rowHTML = "";
         rowHTML += "<tr>";
         rowHTML +=
@@ -225,6 +228,7 @@ function handleResult(resultData) {
             '<a href="single-movie.html?id=' + resultData[i]['movie_id'] + '">'
             + resultData[i]["movie_title"] +     // display star_name for the link text
             '</a>' +
+            "<br><button id='addToShoppingCart' onclick=\"addToCart(\'" + resultData[i]['movie_id'] + "\')\"> Add to Cart </button>" +
             "</th>";
 
         // add genres
@@ -276,8 +280,21 @@ function handleResult(resultData) {
         updateList(listSortOrder[0], listSortOrder[1]);
         updateList(listSortOrder[2], listSortOrder[3]);
     }
-     */
+    */
 }
+
+
+
+// #############################
+// add to shopping cart
+function addToCart(movieId){
+    $.ajax("api/movieList", {
+        method: "POST",
+        data: {"action": "addToCart", "movieId": movieId}
+    });
+}
+
+
 
 
 // #############################
@@ -315,11 +332,16 @@ function handleBack(hasParameter){
             pageViewSet["itemNum"] = Number(itemNum);
         }
         console.log("backUrl: " + result);
+        updateList(initUpper(listSortOrder[0]), listSortOrder[1]);
+        updateList(initUpper(listSortOrder[2]), listSortOrder[3]);
+        //document.getElementById(initUpper(listSortOrder[0])).innerHTML = initUpper(listSortOrder[0]) + "↓";
+        //document.getElementById(listSortOrder[2][0].toUpperCase() + listSortOrder[2].substring(1, listSortOrder[2].length)).innerHTML = listSortOrder[2] + "↓";
         return result;
     }
     else{
         return "";
     }
+
 }
 
 
@@ -332,6 +354,17 @@ let genreid = getParameterByName('genreid');
 let startwith = getParameterByName('startwith');
 let search = getParameterByName('search');
 let back = getParameterByName('back');
+let offset = getParameterByName('offset');
+let itemNum = getParameterByName('itemNum');
+let num = 0;
+if(offset!=null){
+    num = Number(offset)/Number(itemNum);
+    if(num > 1){
+        document.getElementById('prevPage').disabled = false;
+    }
+}
+document.getElementById('curPage').innerHTML = (num+1).toString();
+
 
 if(search!=null){
     let url = "api/movieList?search=true"

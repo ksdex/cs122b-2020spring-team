@@ -1,4 +1,5 @@
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.annotation.Resource;
@@ -16,7 +17,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
@@ -30,7 +33,37 @@ public class MovieListServlet extends HttpServlet {
 
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
+        String action = request.getParameter("action");
+        System.out.println("action: ");
+        System.out.println(action);
+        if(action != null) {
+            System.out.println("Post: action not null");
+            System.out.println(action.equals("addToCart"));
+            if(action.equals("addToCart")){
+                String movieId = request.getParameter("movieId");
+                HttpSession session = request.getSession();
+                Map<String, Integer> cartItems = (Map<String, Integer>) session.getAttribute("cartItems");
+                if (cartItems == null){
+                    Map<String, Integer> temp = new HashMap<String, Integer>();
+                    temp.put(movieId, 1);
+                    session.setAttribute("cartItems", temp);
+                }
+                else{
+                    if (cartItems.get(movieId) == null){
+                        cartItems.put(movieId, 1);
+                    }
+                    else{
+                        cartItems.put(movieId, cartItems.get(movieId) + 1);
+                    }
+                    session.setAttribute("cartItems", cartItems);
+                }
+                System.out.println(movieId);
+                System.out.println(cartItems);
+            }
+        }
+        else {
+            doGet(request, response);
+        }
     }
 
 
@@ -80,7 +113,6 @@ public class MovieListServlet extends HttpServlet {
         String secondSortOrder = request.getParameter("secondSortOrder");
         String offset = request.getParameter("offset");
         String itemNum = request.getParameter("itemNum");
-        // ArrayList<String> cartItems = (ArrayList<String>) session.getAttribute("previousItems");
         JsonObject paramList = new JsonObject();
         if(search != null) {
             paramList.addProperty("search", search);
