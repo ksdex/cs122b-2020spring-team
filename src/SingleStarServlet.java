@@ -14,6 +14,8 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 
 // Declaring a WebServlet called SingleStarServlet, which maps to url "/api/single-star"
 @WebServlet(name = "SingleStarServlet", urlPatterns = "/api/single-star")
@@ -23,6 +25,7 @@ public class SingleStarServlet extends HttpServlet {
 	// Create a dataSource which registered in web.xml
 	@Resource(name = "jdbc/moviedb")
 	private DataSource dataSource;
+
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse

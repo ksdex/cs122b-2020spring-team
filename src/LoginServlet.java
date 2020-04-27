@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet {
         try {
             dbcon = dataSource.getConnection();
             Statement statement = dbcon.createStatement();
-            String query = "SELECT password from customers where email = '"+email+"'";
+            String query = "SELECT password, id from customers where email = '"+email+"'";
             ResultSet rs = statement.executeQuery(query);
             if(!rs.next()){
                 responseJsonObject.addProperty("status", "fail");
@@ -41,17 +41,24 @@ public class LoginServlet extends HttpServlet {
             }
             else{
                 String truepwd = rs.getString("password");
+                String customerId = rs.getString("id");
                 if(truepwd.equals(password)){
                     request.getSession().setAttribute("user", new User(email));
                     request.getSession().setAttribute("accessBoolean", true);
                     responseJsonObject.addProperty("status", "success");
                     responseJsonObject.addProperty("message", "success");
+
+                    HttpSession session = request.getSession();
+                    session.setAttribute("user", customerId);
                 }
                 else{
                     responseJsonObject.addProperty("status", "fail");
                     responseJsonObject.addProperty("message", "Incorrect password");
                 }
             }
+            dbcon.close();
+            rs.close();
+            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

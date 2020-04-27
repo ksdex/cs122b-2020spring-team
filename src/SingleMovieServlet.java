@@ -15,6 +15,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
@@ -25,6 +27,38 @@ public class SingleMovieServlet extends HttpServlet {
     // Create a dataSource which registered in web.xml
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
+
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response){
+        String action = request.getParameter("action");
+        System.out.println("action: ");
+        System.out.println(action);
+        if(action != null) {
+            System.out.println("Post: action not null");
+            System.out.println(action.equals("addToCart"));
+            if(action.equals("addToCart")){
+                String movieId = request.getParameter("movieId");
+                HttpSession session = request.getSession();
+                Map<String, Integer> cartItems = (Map<String, Integer>) session.getAttribute("cartItems");
+                if (cartItems == null){
+                    Map<String, Integer> temp = new HashMap<String, Integer>();
+                    temp.put(movieId, 1);
+                    session.setAttribute("cartItems", temp);
+                }
+                else{
+                    if (cartItems.get(movieId) == null){
+                        cartItems.put(movieId, 1);
+                    }
+                    else{
+                        cartItems.put(movieId, cartItems.get(movieId) + 1);
+                    }
+                    session.setAttribute("cartItems", cartItems);
+                }
+                System.out.println(movieId);
+                System.out.println(cartItems);
+            }
+        }
+    }
 
 
     /**
@@ -39,7 +73,7 @@ public class SingleMovieServlet extends HttpServlet {
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
 
-        System.out.println("doGet_SingleMovieServlet");
+        System.out.println("do??Get_SingleMovieServlet?really?");
 
         try {
             // Get a connection from dataSource
@@ -135,8 +169,7 @@ public class SingleMovieServlet extends HttpServlet {
             response.setStatus(500);
 
         }
-        System.out.println("SingleMovieServletReturn");
+        System.out.println("SingleMovieServletReturn?");
         out.close();
-
     }
 }

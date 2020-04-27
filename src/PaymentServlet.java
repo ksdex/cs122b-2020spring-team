@@ -13,17 +13,102 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
-@WebServlet(name = "SingleMovieServlet", urlPatterns = "/api/single-movie")
+@WebServlet(name = "paymentServlet", urlPatterns = "/api/payment")
 public class PaymentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // Create a dataSource which registered in web.xml
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
+
+    private java.sql.Date strToDate(String strDate) {
+        String str = strDate;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        java.util.Date d = null;
+        try {
+            d = format.parse(str);
+        } catch (Exception e) {
+            return null;
+        }
+        java.sql.Date date = new java.sql.Date(d.getTime());
+        return date;
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String cardNum = request.getParameter("cardNum");
+        String expirDate = request.getParameter("expirDate");
+
+        /* This example only allows email/password to be test/test
+        /  in the real project, you should talk to the database to verify email/password
+        */
+        JsonObject responseJsonObject = new JsonObject();
+        Connection dbcon = null;
+        try {
+            java.sql.Date date = strToDate(expirDate);
+            if(date == null){
+                System.out.println("fail");
+                responseJsonObject.addProperty("status", "fail");
+                responseJsonObject.addProperty("message", "Payment information is invalid.");
+            }
+            else {
+                dbcon = dataSource.getConnection();
+                Statement statement = dbcon.createStatement();
+                String query = "SELECT * from creditcards as c where id = '" + cardNum + "'" +
+                        " and firstName = '" + firstName + "'" +
+                        " and lastName = '" + lastName + "'" +
+                        " and expiration = '" + date + "'";
+                ResultSet rs = statement.executeQuery(query);
+                if (!rs.next()) {
+                    System.out.println("fail");
+                    responseJsonObject.addProperty("status", "fail");
+                    responseJsonObject.addProperty("message", "Payment information is invalid.");
+                } else {
+                    System.out.println("success");
+                    responseJsonObject.addProperty("status", "success");
+                    responseJsonObject.addProperty("message", "success");
+
+                    HttpSession session = request.getSession();
+                    String customerId = (String) session.getAttribute("user");
+                    Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
+                    for (Map.Entry<String, float[]> entry : cartItems.entrySet()) {
+                        String movieId = entry.getKey();
+                        float[] itemInfo = entry.getValue();
+                        Date day=new Date();
+                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                        String d = df.format(day);
+                        for(int i = 0; i < itemInfo[0]; i++) {
+                            String query2 = "insert into sales (customerId, movieId, saleDate) values (" +
+                                    customerId + ", '" + movieId + "', '" + d + "')";
+                            Statement statement2 = dbcon.createStatement();
+                            int retID = statement2.executeUpdate(query2);
+                            System.out.println("retId" + retID);
+                            statement2.close();
+                        }
+                    }
+                }
+                dbcon.close();
+                rs.close();
+                statement.close();
+            }
+            System.out.println("?");
+            System.out.println(responseJsonObject);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        response.getWriter().write(responseJsonObject.toString());
+
+    }
 
 
     /**
@@ -32,110 +117,28 @@ public class PaymentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json"); // Response mime type
 
-        // Retrieve parameter id from url request.
-        String id = request.getParameter("id");
-
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
-
-        System.out.println("doGet_SingleMovieServlet");
-
-        try {
-            // Get a connection from dataSource
-            Connection dbcon = dataSource.getConnection();
-
-            // Declare our statement
-            Statement statement = dbcon.createStatement();
-            String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'";
-
-            // Perform the query
-            ResultSet rs = statement.executeQuery(query);
-
-            JsonArray jsonArray = new JsonArray();
-            // Iterate through each row of rs
-            while (rs.next()) {
-                String movie_id = rs.getString("id");
-                String movie_title = rs.getString("title");
-                String movie_year = rs.getString("year");
-                String movie_director = rs.getString("director");
-                String movie_rating = rs.getString("rating");
-
-                // Create a JsonObject based on the data we retrieve from rs
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("movie_id", movie_id);
-                jsonObject.addProperty("movie_title", movie_title);
-                jsonObject.addProperty("movie_year", movie_year);
-                jsonObject.addProperty("movie_director", movie_director);
-                jsonObject.addProperty("movie_rating", movie_rating);
-                Statement statement2 = dbcon.createStatement();
-                ResultSet rs2 = statement2.executeQuery(
-                        "select sim.starId, siom.name, count(sim.starId) from stars_in_movies as sim, (" +
-                                "select starId, name from movies,stars,stars_in_movies where stars.id=stars_in_movies.starId " +
-                                "and stars_in_movies.movieId=movies.id and movies.id='" + movie_id + "' " +
-                                ")as siom " + // siom: stars_in_one_movie
-                                "where sim.starId = siom.starId " +
-                                "group by sim.starId " +
-                                "order by count(sim.starId) desc, siom.name");
-                JsonObject starsJsonObject = new JsonObject();
-                int count = 1;
-                while(rs2.next()){
-                    JsonObject singleStarJsonObject = new JsonObject();
-                    singleStarJsonObject.addProperty("id", rs2.getString("starId"));
-                    singleStarJsonObject.addProperty("name", rs2.getString("name"));
-                    starsJsonObject.add(Integer.toString(count), singleStarJsonObject);
-                    count += 1;
+        JsonArray jsonArray = new JsonArray();
+        HttpSession session = request.getSession();
+        if (session != null) {
+            Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
+            float price = 0;
+            if (cartItems != null) {
+                for (Map.Entry<String, float[]> entry : cartItems.entrySet()) {
+                    float[] itemInfo = entry.getValue();
+                    price += itemInfo[0] * itemInfo[1];
                 }
-                jsonObject.add("movie_stars", starsJsonObject);
-                rs2.close();
-                statement2.close();
-
-                Statement statement3 = dbcon.createStatement();
-                ResultSet rs3 = statement3.executeQuery(
-                        "select * from movies,genres,genres_in_movies" +
-                                " where genres.id=genres_in_movies.genreId and genres_in_movies.movieId=movies.id" +
-                                " and movies.id='" + movie_id + "' order by genres.name");
-                JsonObject genresJsonObject = new JsonObject();
-                count = 1;
-                while(rs3.next()){
-                    JsonObject oneGenresJsonObject = new JsonObject();
-                    oneGenresJsonObject.addProperty("name", rs3.getString("name"));
-                    oneGenresJsonObject.addProperty("genreId", rs3.getString("genreId"));
-                    genresJsonObject.add(Integer.toString(count), oneGenresJsonObject);
-                    count += 1;
-                }
-                jsonObject.add("movie_genres", genresJsonObject);
-                rs3.close();
-                statement3.close();
-                jsonArray.add(jsonObject);
             }
-
-            // last item: lastParamJson
-            HttpSession session = request.getSession();
-            JsonObject lastParam = (JsonObject) session.getAttribute("lastParamList");
-            if(lastParam != null){
-                jsonArray.add(lastParam);
-            }
-
-            // write JSON string to output
+            System.out.println(price);
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("price", price);
+            jsonArray.add(jsonObject);
             out.write(jsonArray.toString());
+            System.out.println(jsonArray.toString());
             // set response status to 200 (OK)
             response.setStatus(200);
-
-            rs.close();
-            statement.close();
-            dbcon.close();
-        } catch (Exception e) {
-            // write error message JSON object to output
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("errorMessage", e.getMessage());
-            out.write(jsonObject.toString());
-
-            // set response status to 500 (Internal Server Error)
-            response.setStatus(500);
-
+            out.close();
         }
-        System.out.println("SingleMovieServletReturn");
-        out.close();
-
     }
 }

@@ -135,14 +135,18 @@
             <tr>
                 <th>Movie Title</th>
                 <th>Quantity</th>
-                <th>Price</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
             </tr>
             </thead>
 
             <!-- Table body is left empty here, will be populated with the data retrieved with single-star.js -->
             <!-- single-star.js will find this html element by it's id "movie_table_body" -->
-            <tbody id=movie_table_body></tbody>
+            <tbody id=shopping_cart_body></tbody>
         </table>
+        <div>
+            <button class="btn btn-success pull-right" onclick="checkOut()"> Proceed to payment </button>
+        </div>
     </div>
 </div>
 

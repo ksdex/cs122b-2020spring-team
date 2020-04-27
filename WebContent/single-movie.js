@@ -51,7 +51,7 @@ function handleReturnUrl(lastParam){
 
 
 function handleMovieResult(resultData) {
-    console.log("handleMovieResult: populating movie table from resultData");
+    console.log("handleMovieResult: populating movie table from resultData?");
 
     // Populate the movie table
     // Find the empty table body by id "movie_table_body"
@@ -61,20 +61,27 @@ function handleMovieResult(resultData) {
     console.log(lastParam);
     let url = handleReturnUrl(lastParam);
     document.getElementById("returnPrevMain").href = url;
-    console.log("Set url: " + url);
+    console.log("Set url: " + url + "?");
+    console.log("?");
+    console.log(resultData.length);
 
     // Iterate through resultData, no more than 20 entries -> Top 20 rated movies
     for (let i = 0; i < resultData.length-1; i++) {
         let rowHTML = "";
+        console.log("in for");
+        console.log(resultData.length);
 
         rowHTML += "<tr>";
         rowHTML +=
             "<th>" +
-            // Not add link <- Add a link to single-movie.html with id passed with GET url parameter
-            '<a>'
-            + resultData[i]["movie_title"] +     // display movie_name for the link text
+            // Add a link to single-star.html with id passed with GET url parameter
+            '<a href="single-movie.html?id=' + resultData[i]['movie_id'] + '">'
+            + resultData[i]["movie_title"] +     // display star_name for the link text
             '</a>' +
+            "<br><button id='addToShoppingCart' onclick=\"addToCart(\'" + resultData[i]['movie_id'] + "\')\"> Add to Cart </button>" +
             "</th>";
+
+        console.log(rowHTML);
 
         rowHTML += "<th>" + resultData[i]['movie_year'] + "</th>";
         rowHTML += "<th>" + resultData[i]['movie_director'] + "</th>";
@@ -107,6 +114,19 @@ function handleMovieResult(resultData) {
     }
 }
 
+
+
+// #############################
+// add to shopping cart
+function addToCart(movieId){
+    $.ajax("api/movieList", {
+        method: "POST",
+        data: {"action": "addToCart", "movieId": movieId}
+    });
+}
+
+
+// #############################
 
 /**
  * Once this .js is loaded, following scripts will be executed by the browser

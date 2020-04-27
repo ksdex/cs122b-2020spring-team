@@ -11,64 +11,22 @@ import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
-@WebServlet(name = "ShoppingCartServlet", urlPatterns = "/api/shopping-cart")
-public class ShoppingCartServlet extends HttpServlet {
+@WebServlet(name = "ConfirmationServlet", urlPatterns = "/api/confirmation")
+public class ConfirmationServlet extends HttpServlet {
     private static final long serialVersionUID = 3L;
 
     // Create a dataSource which registered in web.xml
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
-
-
-    private float getPriceFromId(String id){
-        String temp = id.substring(id.length()-2, id.length());
-        return Float.parseFloat(temp) / 10;
-    }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        System.out.println("action: ");
-        System.out.println(action);
-        if(action != null) {
-            System.out.println("Post: action not null");
-            System.out.println(action);
-            String movieId = request.getParameter("movieId");
-            HttpSession session = request.getSession();
-            Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
-            float[] temp;
-            if(action.equals("addItem")){
-                temp = cartItems.get(movieId);
-                temp[0]++;
-                cartItems.put(movieId, temp);
-            }
-            else if (action.equals("deleteItem")){
-                cartItems.remove(movieId);
-            }
-            else if (action.equals("decreaseItem")){
-                temp = cartItems.get(movieId);
-                float new_num = temp[0] - 1;
-                if (new_num <= 0){
-                    cartItems.remove(movieId);
-                }
-                else{
-                    temp[0]--;
-                    cartItems.put(movieId, temp);
-                }
-            }
-            System.out.println(movieId);
-            System.out.println(cartItems);
-            session.setAttribute("cartItems", cartItems);
-            doGet(request, response);
-        }
-    }
 
 
     /**
@@ -99,21 +57,23 @@ public class ShoppingCartServlet extends HttpServlet {
 
                     // Perform the query
                     ResultSet rs = statement.executeQuery(query);
+                    float totalPrice = 0;
                     // Iterate through each row of rs
                     while (rs.next()) {
                         String movie_title = rs.getString("title");
-
                         // Create a JsonObject based on the data we retrieve from rs
                         JsonObject jsonObject = new JsonObject();
                         jsonObject.addProperty("id", movieId);
                         jsonObject.addProperty("title", movie_title);
                         jsonObject.addProperty("num", itemInfo[0]);
-                        jsonObject.addProperty("price", getPriceFromId(movieId));
+                        jsonObject.addProperty("price", itemInfo[1]);
+                        totalPrice += itemInfo[0] * itemInfo[1];
                         jsonArray.add(jsonObject);
-                        itemInfo[1] = getPriceFromId(movieId);
-                        cartItems.put(movieId, itemInfo);
-                        session.setAttribute("cartItems", cartItems);
                     }
+                    JsonObject price = new JsonObject();
+                    price.addProperty("totalPrice", totalPrice);
+                    jsonArray.add(price);
+                    session.setAttribute("cartItems", new HashMap<String, float[]>());
                     rs.close();
                     statement.close();
                 }

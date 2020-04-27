@@ -42,18 +42,26 @@ public class MovieListServlet extends HttpServlet {
             if(action.equals("addToCart")){
                 String movieId = request.getParameter("movieId");
                 HttpSession session = request.getSession();
-                Map<String, Integer> cartItems = (Map<String, Integer>) session.getAttribute("cartItems");
+                Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
                 if (cartItems == null){
-                    Map<String, Integer> temp = new HashMap<String, Integer>();
-                    temp.put(movieId, 1);
-                    session.setAttribute("cartItems", temp);
+                    Map<String, float[]> result = new HashMap<String, float[]>();
+                    float[] temp = new float[2];
+                    temp[0] = 1;
+                    temp[1] = 0;
+                    result.put(movieId, temp);
+                    session.setAttribute("cartItems", result);
                 }
                 else{
+                    float[] temp = new float[2];
                     if (cartItems.get(movieId) == null){
-                        cartItems.put(movieId, 1);
+                        temp[0] = 1;
+                        temp[1] = 0;
+                        cartItems.put(movieId, temp);
                     }
                     else{
-                        cartItems.put(movieId, cartItems.get(movieId) + 1);
+                        temp[0] = cartItems.get(movieId)[0] + 1;
+                        temp[1] = cartItems.get(movieId)[1];
+                        cartItems.put(movieId, temp);
                     }
                     session.setAttribute("cartItems", cartItems);
                 }
@@ -349,17 +357,18 @@ public class MovieListServlet extends HttpServlet {
                 }
                 else if(startwith!=null){
                     if(startwith.equals("none")){
-                        query = "select m.id from (select id, title as movieid from movies where title not REGEXP '^[0-9a-zA-Z]') as m, ratings as r " +
+                        query = "select m.id from (select id as movieid, title from movies where title not REGEXP '^[0-9a-zA-Z]') as m, ratings as r " +
                                 "where m.id = r.movieId " + order + limit;
                     }
                     else{
-                        query = "select m.id (SELECT id, title as movieid from movies where title like '" + startwith + "%' or " +
-                                "title like '"+startwith.toUpperCase()+"%') as m, ratings as r where m.id = r.movieId " + order + limit;
+                        query = "select m.movieid from (SELECT id as movieid, title from movies where title like '" + startwith + "%' or " +
+                                "title like '"+startwith.toUpperCase()+"%') as m, ratings as r where m.movieid = r.movieId " + order + limit;
                     }
                 }
             }
 
             // Perform the query
+            System.out.println(query);
             ResultSet rs = statement.executeQuery(query);
 
             JsonArray jsonArray = new JsonArray();
