@@ -31,6 +31,12 @@ function getParameterByName(target) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+function reloadPage() {
+    if(location.href.indexOf('#reloaded')==-1){
+        location.href=location.href+"#reloaded";
+        location.reload();
+    }
+}
 
 function handleReturnUrl(lastParam){
     let url = "index.html"
@@ -93,6 +99,7 @@ function handleResult(resultData) {
         // Append the row created to the table body, which will refresh the page
         movieTableBodyElement.append(rowHTML);
     }
+    window.onload=reloadPage();
 }
 
 

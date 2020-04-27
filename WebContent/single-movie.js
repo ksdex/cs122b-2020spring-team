@@ -49,6 +49,12 @@ function handleReturnUrl(lastParam){
     }
 }
 
+function reloadPage() {
+    if(location.href.indexOf('#reloaded')==-1){
+        location.href=location.href+"#reloaded";
+        location.reload();
+    }
+}
 
 function handleMovieResult(resultData) {
     console.log("handleMovieResult: populating movie table from resultData?");
@@ -88,7 +94,7 @@ function handleMovieResult(resultData) {
         rowHTML += "<th><ul>";
         let genreHTML = "";
         let j = 1;
-        while(resultData[i]['movie_genres'][j] != undefined) {
+        while(resultData[i]['movie_genres'][j] !== undefined) {
             genreHTML += '<li><a href="index.html?genreid=' + resultData[i]['movie_genres'][j]['genreId'] + '">' +
                 resultData[i]['movie_genres'][j]['name'] + "</a>";
             j++;
@@ -99,7 +105,7 @@ function handleMovieResult(resultData) {
 
         rowHTML += "<th><ul>";
         j = 1;
-        while(resultData[i]['movie_stars'][j] != undefined){
+        while(resultData[i]['movie_stars'][j] !== undefined){
             rowHTML += '<li><a href="single-star.html?id=' + resultData[i]['movie_stars'][j]["id"] + '">'
                         + resultData[i]['movie_stars'][j]["name"] + '</a>';
             j++;
@@ -112,6 +118,7 @@ function handleMovieResult(resultData) {
         // Append the row created to the table body, which will refresh the page
         movieTableBodyElement.append(rowHTML);
     }
+    window.onload=reloadPage();
 }
 
 
