@@ -29,33 +29,55 @@ public class SingleMovieServlet extends HttpServlet {
     private DataSource dataSource;
 
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response){
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         System.out.println("action: ");
         System.out.println(action);
+        PrintWriter out = response.getWriter();
         if(action != null) {
-            System.out.println("Post: action not null");
-            System.out.println(action.equals("addToCart"));
-            if(action.equals("addToCart")){
-                String movieId = request.getParameter("movieId");
-                HttpSession session = request.getSession();
-                Map<String, Integer> cartItems = (Map<String, Integer>) session.getAttribute("cartItems");
-                if (cartItems == null){
-                    Map<String, Integer> temp = new HashMap<String, Integer>();
-                    temp.put(movieId, 1);
-                    session.setAttribute("cartItems", temp);
-                }
-                else{
-                    if (cartItems.get(movieId) == null){
-                        cartItems.put(movieId, 1);
+            try{
+                System.out.println("Post: action not null");
+                System.out.println(action.equals("addToCart"));
+                if(action.equals("addToCart")) {
+                    String movieId = request.getParameter("movieId");
+                    HttpSession session = request.getSession();
+                    Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
+                    if (cartItems == null) {
+                        Map<String, float[]> result = new HashMap<String, float[]>();
+                        float[] temp = new float[2];
+                        temp[0] = 1;
+                        temp[1] = 0;
+                        result.put(movieId, temp);
+                        session.setAttribute("cartItems", result);
+                    } else {
+                        float[] temp = new float[2];
+                        if (cartItems.get(movieId) == null) {
+                            temp[0] = 1;
+                            temp[1] = 0;
+                            cartItems.put(movieId, temp);
+                        } else {
+                            temp[0] = cartItems.get(movieId)[0] + 1;
+                            temp[1] = cartItems.get(movieId)[1];
+                            cartItems.put(movieId, temp);
+                        }
+                        session.setAttribute("cartItems", cartItems);
                     }
-                    else{
-                        cartItems.put(movieId, cartItems.get(movieId) + 1);
-                    }
-                    session.setAttribute("cartItems", cartItems);
+                    System.out.println(movieId);
+                    System.out.println(cartItems);
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("status", "success");
+                    out.write(jsonObject.toString());
+                    out.close();
                 }
-                System.out.println(movieId);
-                System.out.println(cartItems);
+            } catch (Exception e) {
+                // write error message JSON object to output
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("status", "fail");
+                System.out.println("Error: " + e.getMessage());
+                out.write(jsonObject.toString());
+                out.close();
+
+                response.setStatus(200);
             }
         }
     }

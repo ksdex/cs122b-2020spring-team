@@ -84,7 +84,7 @@ function handleMovieResult(resultData) {
             '<a href="single-movie.html?id=' + resultData[i]['movie_id'] + '">'
             + resultData[i]["movie_title"] +     // display star_name for the link text
             '</a>' +
-            "<br><button id='addToShoppingCart' onclick=\"addToCart(\'" + resultData[i]['movie_id'] + "\')\"> Add to Cart </button>" +
+            "<br><button class='butt' id='addToShoppingCart' onclick=\"addToCart(\'" + resultData[i]['movie_id'] + "\')\"> Add to Cart </button>" +
             "</th>";
 
         console.log(rowHTML);
@@ -128,9 +128,23 @@ function handleMovieResult(resultData) {
 function addToCart(movieId){
     $.ajax("api/movieList", {
         method: "POST",
-        data: {"action": "addToCart", "movieId": movieId}
+        data: {"action": "addToCart", "movieId": movieId},
+        success: resultData => addToCartAlert(resultData)
     });
 }
+
+
+function addToCartAlert(resultData){
+    let resultDataJson = JSON.parse(resultData);
+    if(resultDataJson["status"] == "success"){
+        alert("Successfully add to cart.");
+    }
+    else{
+        alert("Fail to add to cart.");
+    }
+
+}
+
 
 
 // #############################
