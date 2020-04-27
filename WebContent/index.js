@@ -49,10 +49,10 @@ function getAllParameter(){
 }
 
 
-function sendCurAndMoreParam(dataSet){
+function sendCurAndMoreParam(){
     let parameterSet = getAllParameter();
     console.log(parameterSet);
-    dataSet = Object.assign(dataSet, parameterSet);
+    let dataSet = Object.assign(sortListToObject(), parameterSet, pageViewSet);
 
     console.log(dataSet);
 
@@ -72,18 +72,19 @@ function sendCurAndMoreParam(dataSet){
 // Global variable
 
 let listSortOrder = ["noSort", -1, "noSort", -1];
-let pageViewItem = 20;
+let pageViewSet = {"offset": 0, "itemNum": 20}
 let reachEnd = 0; // 0: false; 1: true
 
 // ################################################
 // Task 3: Previous/Next
 function changePageViewItem(numItem){
-    pageViewItem = numItem;
+    pageViewSet["itemNum"] = numItem;
     let currentPageNum = Number(document.getElementById("curPage").innerText);
     let offset = (currentPageNum-1) * numItem;
-    let dataSet = {"offset": offset, "itemNum": numItem};
-    console.log(dataSet);
-    sendCurAndMoreParam(dataSet);
+    pageViewSet["offset"] = offset;
+    pageViewSet["itemNum"] = numItem;
+    console.log(pageViewSet);
+    sendCurAndMoreParam();
 }
 
 
@@ -103,7 +104,7 @@ function jumpPrevPage(){
         if(currentPageNum-1 <= 1){
             document.getElementById("prevPage").disabled = true;
         }
-        changePageViewItem(pageViewItem);
+        changePageViewItem(pageViewSet["itemNum"]);
     }
     else{
         document.getElementById("prevPage").disabled = true;
@@ -115,13 +116,28 @@ function jumpNextPage(){
     document.getElementById("prevPage").disabled = false;
     let currentPageNum = Number(document.getElementById("curPage").innerText);
     $("#curPage").text(currentPageNum+1);
-    changePageViewItem(pageViewItem);
+    changePageViewItem(pageViewSet["itemNum"]);
 }
 
 
 
 // ################################################
 // Task 3: Sort
+
+function sortListToObject(){
+    let result = {};
+    if(listSortOrder[0] != "noSort"){
+        result["firstSort"] = listSortOrder[0].toLowerCase();
+        result["firstSortOrder"] = handleSortOrder(listSortOrder[1]);
+        if(listSortOrder[2] != "noSort"){
+            result["secondSort"] = listSortOrder[2].toLowerCase();
+            result["secondSortOrder"] = handleSortOrder(listSortOrder[3]);
+        }
+    }
+    console.log(result);
+    return result;
+}
+
 
 function theOtherSort(item){
     if(item == "Rating"){
@@ -133,39 +149,29 @@ function theOtherSort(item){
 }
 
 function updateList(item, order){
-    if(order == 0){
-        $("#" + item).text(item + " ↓");
+    console.log("update: " + item + " " + order.toString());
+    console.log(listSortOrder);
+    if(item != "noSort") {
+        if (order == 0) {
+            $("#" + item).text(item + " ↓");
+        } else {
+            $("#" + item).text(item + " ↑");
+        }
+        if (listSortOrder[2] == "noSort") {
+            $("#" + theOtherSort(item)).text(theOtherSort(item));
+        }
     }
-    else{
-        $("#" + item).text(item + " ↑");
-    }
-    if(listSortOrder[2] == "noSort"){
-        $("#" + theOtherSort(item)).text(theOtherSort(item));
-    }
+    // console.log(document.getElementById(item).textContent);
+    // console.log(document.getElementById(theOtherSort(item)).textContent);
 }
 
 
 function sortByItem(item, sortOrder, order){
     listSortOrder[sortOrder*2] = item;
-    listSortOrder[sortOrder*2 + 1] = handleSortOrder(order);
+    listSortOrder[sortOrder*2 + 1] = order;
     console.log(listSortOrder);
     updateList(item, order);
-    if(listSortOrder[0] != "noSort") {
-        // If the current page has parameters
-        let dataSet = {};
-        let temp;
-        if (listSortOrder[0] != "noSort") {
-            temp = listSortOrder[0];
-            dataSet["firstSort"] = temp.replace(temp[0], temp[0].toLowerCase());
-            dataSet["firSortOrder"] = listSortOrder[1];
-        }
-        if (listSortOrder[2] != "noSort") {
-            temp = listSortOrder[2];
-            dataSet["secondSort"] = temp.replace(temp[0], temp[0].toLowerCase());
-            dataSet["secSortOrder"] = listSortOrder[3];
-        }
-        sendCurAndMoreParam(dataSet);
-    }
+    sendCurAndMoreParam();
 }
 
 
@@ -177,6 +183,17 @@ function handleSortOrder(i){
         return "asc";
     }
 }
+
+
+function handleSortOrderToInt(order){
+    if(order == "desc"){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+}
+
 
 
 function handleSortResult(resultData){
@@ -242,15 +259,69 @@ function handleResult(resultData) {
     }
 
     console.log(resultData.length);
-    console.log(pageViewItem);
-    console.log(resultData.length <= pageViewItem.valueOf());
+    console.log(pageViewSet["itemNum"]);
+    console.log(resultData.length <= pageViewSet["itemNum"].valueOf());
 
-    if(resultData.length < pageViewItem.valueOf()){
+    if(resultData.length < pageViewSet["itemNum"].valueOf()){
         reachEnd = 1;
         document.getElementById("nextPage").disabled = true;
     }
+    else{
+        reachEnd = 0;
+        document.getElementById("nextPage").disabled = false;
+    }
 
+    /*
+    if(back == "1") {
+        updateList(listSortOrder[0], listSortOrder[1]);
+        updateList(listSortOrder[2], listSortOrder[3]);
+    }
+     */
 }
+
+
+// #############################
+// jump
+function handleBack(hasParameter){
+    if(back == "1") {
+        let firstSort_url = getParameterByName("firstSort");
+        let firSortOrder_url = getParameterByName("firstSortOrder");
+        let secondSort_url = getParameterByName("secondSort");
+        let secondSortOrder_url = getParameterByName("secondSortOrder");
+        let offset_url = getParameterByName("offset");
+        let itemNum = getParameterByName("itemNum");
+        let result = "";
+        if(hasParameter == 0) {
+            result = "?back=1";
+        }
+        else{
+            result = "&back=1";
+        }
+        if(firSortOrder_url != null) {
+            result += "&firstSort=" + firstSort_url;
+            result += "&firstSortOrder=" + firSortOrder_url;
+            listSortOrder[0] = firstSort_url;
+            listSortOrder[1] = handleSortOrderToInt(firSortOrder_url);
+            if(secondSortOrder_url != null) {
+                result += "&secondSort=" + secondSort_url;
+                result += "&secondSortOrder=" + secondSortOrder_url;
+                listSortOrder[2] = secondSort_url;
+                listSortOrder[3] = handleSortOrderToInt(secondSortOrder_url);
+            }
+        }
+        if(offset_url != null) {
+            result += "&offset=" + offset_url;
+            result += "&itemNum=" + itemNum;
+            pageViewSet["itemNum"] = Number(itemNum);
+        }
+        console.log("backUrl: " + result);
+        return result;
+    }
+    else{
+        return "";
+    }
+}
+
 
 
 /**
@@ -260,6 +331,8 @@ console.log("javascript is here")
 let genreid = getParameterByName('genreid');
 let startwith = getParameterByName('startwith');
 let search = getParameterByName('search');
+let back = getParameterByName('back');
+
 if(search!=null){
     let url = "api/movieList?search=true"
     let title = getParameterByName('title');
@@ -278,6 +351,7 @@ if(search!=null){
     if(starname!=null){
         url += "&starname=" + starname;
     }
+    url += handleBack(1);
     jQuery.ajax({
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method
@@ -289,7 +363,7 @@ else if(genreid!=null){
     jQuery.ajax({
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method
-        url: "api/movieList?genreid="+genreid, // Setting request url, which is mapped by StarsServlet in Stars.java
+        url: "api/movieList?genreid="+genreid+handleBack(1), // Setting request url, which is mapped by StarsServlet in Stars.java
         success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
     });
 }
@@ -297,7 +371,7 @@ else if(startwith!=null){
     jQuery.ajax({
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method
-        url: "api/movieList?startwith="+startwith, // Setting request url, which is mapped by StarsServlet in Stars.java
+        url: "api/movieList?startwith="+startwith+handleBack(1), // Setting request url, which is mapped by StarsServlet in Stars.java
         success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
     });
 }
@@ -306,7 +380,7 @@ else{
     jQuery.ajax({
         dataType: "json", // Setting return data type
         method: "GET", // Setting request method
-        url: "api/movieList", // Setting request url, which is mapped by StarsServlet in Stars.java
+        url: "api/movieList" + handleBack(0), // Setting request url, which is mapped by StarsServlet in Stars.java
         success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
     });
 }

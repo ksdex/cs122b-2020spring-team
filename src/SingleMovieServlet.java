@@ -7,12 +7,14 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
@@ -23,6 +25,7 @@ public class SingleMovieServlet extends HttpServlet {
     // Create a dataSource which registered in web.xml
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
+
 
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -35,6 +38,8 @@ public class SingleMovieServlet extends HttpServlet {
 
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
+
+        System.out.println("doGet_SingleMovieServlet");
 
         try {
             // Get a connection from dataSource
@@ -65,9 +70,13 @@ public class SingleMovieServlet extends HttpServlet {
                 jsonObject.addProperty("movie_rating", movie_rating);
                 Statement statement2 = dbcon.createStatement();
                 ResultSet rs2 = statement2.executeQuery(
-                        "select * from movies,stars,stars_in_movies" +
-                                " where stars.id=stars_in_movies.starId and stars_in_movies.movieId=movies.id" +
-                                " and movies.id= '" + movie_id + "'");
+                        "select sim.starId, siom.name, count(sim.starId) from stars_in_movies as sim, (" +
+                                "select starId, name from movies,stars,stars_in_movies where stars.id=stars_in_movies.starId " +
+                                "and stars_in_movies.movieId=movies.id and movies.id='" + movie_id + "' " +
+                                ")as siom " + // siom: stars_in_one_movie
+                                "where sim.starId = siom.starId " +
+                                "group by sim.starId " +
+                                "order by count(sim.starId) desc, siom.name");
                 JsonObject starsJsonObject = new JsonObject();
                 int count = 1;
                 while(rs2.next()){
@@ -85,17 +94,27 @@ public class SingleMovieServlet extends HttpServlet {
                 ResultSet rs3 = statement3.executeQuery(
                         "select * from movies,genres,genres_in_movies" +
                                 " where genres.id=genres_in_movies.genreId and genres_in_movies.movieId=movies.id" +
-                                " and movies.id='" + movie_id + "'");
+                                " and movies.id='" + movie_id + "' order by genres.name");
                 JsonObject genresJsonObject = new JsonObject();
                 count = 1;
                 while(rs3.next()){
-                    genresJsonObject.addProperty(Integer.toString(count), rs3.getString("name"));
+                    JsonObject oneGenresJsonObject = new JsonObject();
+                    oneGenresJsonObject.addProperty("name", rs3.getString("name"));
+                    oneGenresJsonObject.addProperty("genreId", rs3.getString("genreId"));
+                    genresJsonObject.add(Integer.toString(count), oneGenresJsonObject);
                     count += 1;
                 }
                 jsonObject.add("movie_genres", genresJsonObject);
                 rs3.close();
                 statement3.close();
                 jsonArray.add(jsonObject);
+            }
+
+            // last item: lastParamJson
+            HttpSession session = request.getSession();
+            JsonObject lastParam = (JsonObject) session.getAttribute("lastParamList");
+            if(lastParam != null){
+                jsonArray.add(lastParam);
             }
 
             // write JSON string to output
@@ -116,6 +135,7 @@ public class SingleMovieServlet extends HttpServlet {
             response.setStatus(500);
 
         }
+        System.out.println("SingleMovieServletReturn");
         out.close();
 
     }

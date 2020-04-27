@@ -7,12 +7,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
@@ -30,43 +34,85 @@ public class MovieListServlet extends HttpServlet {
     }
 
 
+    private String getOrder(String firstSort, String firstSortOrder, String secondSort, String secondSortOrder){
+        String order = "";
+        if (firstSort == null) {
+            order += " order by rating desc";
+        } else {
+            System.out.println("Get here");
+            order += " order by " + firstSort + " " + firstSortOrder;
+            if (secondSort != null) {
+                order += ", " + secondSort + " " + secondSortOrder;
+            }
+        }
+        return order;
+    }
+
+
+    private String getLimit(String offset, String itemNum){
+        String limit = "";
+        if (offset == null) {
+            limit += " limit 20 offset 0";
+        } else {
+            limit += " limit " + itemNum + " offset " + offset;
+        }
+        return limit;
+    }
+
+
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json"); // Response mime type
+        HttpSession session = request.getSession();
 
         String search = request.getParameter("search");
         String genre =  request.getParameter("genreid");
         String startwith = request.getParameter("startwith");
 
+        String back = request.getParameter("back");
         String firstSort = request.getParameter("firstSort");
-        String firstSortOrder = request.getParameter("firSortOrder");
+        String firstSortOrder = request.getParameter("firstSortOrder");
+        System.out.println(firstSort);
+        System.out.println(firstSortOrder);
         String secondSort = request.getParameter("secondSort");
-        String secondSortOrder = request.getParameter("secSortOrder");
-        String order = "";
-        if (firstSort == null){
-            order += " order by rating desc";
-        }
-        else{
-            System.out.println("Get here");
-            order += " order by " + firstSort + " " + firstSortOrder;
-            if(secondSort != null){
-                order += ", " + secondSort + " " + secondSortOrder;
-            }
-        }
-
+        String secondSortOrder = request.getParameter("secondSortOrder");
         String offset = request.getParameter("offset");
         String itemNum = request.getParameter("itemNum");
-        String limit = "";
-        if(offset == null) {
-            limit += " limit 20 offset 0";
+        // ArrayList<String> cartItems = (ArrayList<String>) session.getAttribute("previousItems");
+        JsonObject paramList = new JsonObject();
+        if(search != null) {
+            paramList.addProperty("search", search);
         }
-        else{
-            limit += " limit " + itemNum + " offset " + offset;
+        if(genre != null) {
+            paramList.addProperty("genre", genre);
+        }
+        if(startwith != null) {
+            paramList.addProperty("startwith", startwith);
+        }
+        if(firstSort != null) {
+            paramList.addProperty("firstSort", firstSort);
+            paramList.addProperty("firstSortOrder", firstSortOrder);
+        }
+        if(secondSort != null) {
+            paramList.addProperty("secondSort", secondSort);
+            paramList.addProperty("secondSortOrder", secondSortOrder);
+        }
+        if(offset != null) {
+            paramList.addProperty("offset", offset);
+        }
+        if(itemNum != null) {
+            paramList.addProperty("itemNum", itemNum);
         }
 
+        System.out.println(firstSort +" " + firstSortOrder +" " +  secondSort +" " +  secondSortOrder);
+        System.out.println(offset +" " +  itemNum);
+        String order = getOrder(firstSort, firstSortOrder, secondSort, secondSortOrder);
+        String limit = getLimit(offset, itemNum);
+
         System.out.println(order);
+        System.out.println(limit);
 
         System.out.println("code is here");
 
@@ -81,17 +127,29 @@ public class MovieListServlet extends HttpServlet {
             String query = "SELECT id as movieid from movies as m, ratings as r where m.id = r.movieId" + order + limit;
             if(search!=null){
                 System.out.println("search is here");
+
                 String starname = request.getParameter("starname");
-                System.out.println("Line 75: " + starname);
-                // System.out.println(starname.indexOf("%20"));
-                if(starname != null && starname.indexOf("%20") != -1){
-                    starname = starname.replace("%20", " ");
-                }
                 String title = request.getParameter("title");
                 String year = request.getParameter("year");
                 String director = request.getParameter("director");
+                if (starname != null) {
+                    paramList.addProperty("starname", starname);
+                }
+                if (title != null) {
+                    paramList.addProperty("title", title);
+                }
+                if (year != null) {
+                    paramList.addProperty("year", year);
+                }
+                if (director != null) {
+                    paramList.addProperty("director", director);
+                }
 
-                String[] strArray={title,director};
+                if(starname != null && starname.indexOf("%20") != -1){
+                    starname = starname.replace("%20", " ");
+                }
+
+                String[] strArray={title, director};
                 String[] name={"title","director"};
                 System.out.println("Line 81");
                 if(starname!=null&&starname.length()!=0){
@@ -216,6 +274,8 @@ public class MovieListServlet extends HttpServlet {
                     dbcon.close();
                     out.write(jsonArray.toString());
                     // set response status to 200 (OK)
+                    session.setAttribute("lastParamList", paramList);
+
                     response.setStatus(200);
                     out.close();
                     return;
@@ -337,6 +397,7 @@ public class MovieListServlet extends HttpServlet {
             rs.close();
             statement.close();
             dbcon.close();
+            session.setAttribute("lastParamList", paramList);
             // write JSON string to output
             out.write(jsonArray.toString());
             // set response status to 200 (OK)

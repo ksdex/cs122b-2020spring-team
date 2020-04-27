@@ -31,6 +31,24 @@ function getParameterByName(target) {
 }
 
 
+function handleReturnUrl(lastParam){
+    let url = "index.html"
+    console.log(lastParam);
+    console.log(Object.keys(lastParam).length);
+    if(Object.keys(lastParam).length <= 0){
+        return url;
+    }
+    else{
+        url += "?"
+        console.log(lastParam);
+        for(let item in lastParam){
+            url += item + "=" + lastParam[item] + "&";
+        }
+        url += "back=1";
+        return url;
+    }
+}
+
 
 function handleMovieResult(resultData) {
     console.log("handleMovieResult: populating movie table from resultData");
@@ -39,8 +57,14 @@ function handleMovieResult(resultData) {
     // Find the empty table body by id "movie_table_body"
     let movieTableBodyElement = jQuery("#movie_table_body");
 
+    let lastParam = resultData[resultData.length-1];
+    console.log(lastParam);
+    let url = handleReturnUrl(lastParam);
+    document.getElementById("returnPrevMain").href = url;
+    console.log("Set url: " + url);
+
     // Iterate through resultData, no more than 20 entries -> Top 20 rated movies
-    for (let i = 0; i < Math.min(20, resultData.length); i++) {
+    for (let i = 0; i < resultData.length-1; i++) {
         let rowHTML = "";
 
         rowHTML += "<tr>";
@@ -55,11 +79,15 @@ function handleMovieResult(resultData) {
         rowHTML += "<th>" + resultData[i]['movie_year'] + "</th>";
         rowHTML += "<th>" + resultData[i]['movie_director'] + "</th>";
         rowHTML += "<th><ul>";
+        let genreHTML = "";
         let j = 1;
-        while(resultData[i]['movie_genres'][j] != undefined){
-            rowHTML += '<li>' + resultData[i]['movie_genres'][j];
+        while(resultData[i]['movie_genres'][j] != undefined) {
+            genreHTML += '<li><a href="index.html?genreid=' + resultData[i]['movie_genres'][j]['genreId'] + '">' +
+                resultData[i]['movie_genres'][j]['name'] + "</a>";
             j++;
         }
+        rowHTML += genreHTML
+        rowHTML += "</ul></th>";
         rowHTML += "</ul></th>";
 
         rowHTML += "<th><ul>";
