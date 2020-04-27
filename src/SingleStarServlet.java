@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -88,6 +89,13 @@ public class SingleStarServlet extends HttpServlet {
 				System.out.println(movieTitle);
 				jsonArray.add(jsonObject);
 			}
+
+			// last item: lastParamJson
+			HttpSession session = request.getSession();
+			JsonObject lastParam = (JsonObject) session.getAttribute("lastParamList");
+			if(lastParam != null){
+				jsonArray.add(lastParam);
+			}
 			
             // write JSON string to output
             out.write(jsonArray.toString());
@@ -102,7 +110,6 @@ public class SingleStarServlet extends HttpServlet {
 			JsonObject jsonObject = new JsonObject();
 			jsonObject.addProperty("errorMessage", e.getMessage());
 			out.write(jsonObject.toString());
-
 
 			// set response status to 500 (Internal Server Error)
 			response.setStatus(500);

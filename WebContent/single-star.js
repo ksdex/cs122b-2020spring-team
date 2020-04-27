@@ -31,6 +31,25 @@ function getParameterByName(target) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+
+function handleReturnUrl(lastParam){
+    let url = "index.html"
+    console.log(lastParam);
+    console.log(Object.keys(lastParam).length);
+    if(Object.keys(lastParam).length <= 0){
+        return url;
+    }
+    else{
+        url += "?"
+        console.log(lastParam);
+        for(let item in lastParam){
+            url += item + "=" + lastParam[item] + "&";
+        }
+        url += "back=1";
+        return url;
+    }
+}
+
 /**
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
  * @param resultData jsonObject
@@ -43,6 +62,12 @@ function handleResult(resultData) {
     // populate the star info h3
     // find the empty h3 body by id "star_info"
     let starInfoElement = jQuery("#star_info");
+
+    let lastParam = resultData[resultData.length-1];
+    console.log(lastParam);
+    let url = handleReturnUrl(lastParam);
+    document.getElementById("returnPrevMain").href = url;
+    console.log("Set url: " + url);
 
     // append two html <p> created to the h3 body, which will refresh the page
     starInfoElement.append("<p>Star Name: " + resultData[0]["star_name"] + "</p>" +
@@ -57,7 +82,7 @@ function handleResult(resultData) {
     // Concatenate the html tags with resultData jsonObject to create table rows
     console.log(resultData.length);
 
-    for (let i = 0; i < resultData.length; i++) {
+    for (let i = 0; i < resultData.length-1; i++) {
         let rowHTML = "";
         rowHTML += "<tr>";
         rowHTML += "<th><a href='single-movie.html?id=" + resultData[i]["movie_id"] + "'>" + resultData[i]["movie_title"] + "</a></th>";
