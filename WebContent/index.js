@@ -56,16 +56,46 @@ function initUpper(s){
 function sendCurAndMoreParam(){
     let parameterSet = getAllParameter();
     console.log(parameterSet);
-    let dataSet = Object.assign(sortListToObject(), parameterSet, pageViewSet);
-
-    console.log(dataSet);
+    if(parameterSet != null) {
+        if (parameterSet["offset"] != null) {
+            parameterSet["offset"] = pageViewSet["offset"];
+            parameterSet["itemNum"] = pageViewSet["itemNum"];
+        } else {
+            parameterSet = Object.assign(parameterSet, pageViewSet);
+        }
+        let result = sortListToObject();
+        console.log(result);
+        console.log(parameterSet["firstSort"]);
+        if (parameterSet["firstSort"] != null) {
+            let firstSort = result["firstSort"];
+            console.log(firstSort);
+            if (firstSort != null) {
+                parameterSet["firstSort"] = firstSort;
+                parameterSet["firstSortOrder"] = result["firstSortOrder"];
+                console.log("paramterset after changing firstSort: " + parameterSet);
+                let secondSort = result["secondSort"];
+                if (secondSort != null) {
+                    parameterSet["secondSort"] = secondSort;
+                    parameterSet["secondSortOrder"] = result["secondSortOrder"];
+                    console.log("paramterset after changing secondSort: " + parameterSet);
+                }
+            }
+        } else {
+            console.log("combine");
+            parameterSet = Object.assign(parameterSet, sortListToObject());
+        }
+    }
+    else{
+         parameterSet = Object.assign(sortListToObject(), pageViewSet);
+    }
+    console.log(parameterSet);
 
     // update page
-    if (dataSet != {}) {
+    if (parameterSet != {}) {
         $.ajax(
             "api/movieList", {
                 method: "POST",
-                data: dataSet,
+                data: parameterSet,
                 success: (resultData) => handleSortResult(resultData)
             }
         );
@@ -290,8 +320,21 @@ function handleResult(resultData) {
 function addToCart(movieId){
     $.ajax("api/movieList", {
         method: "POST",
-        data: {"action": "addToCart", "movieId": movieId}
+        data: {"action": "addToCart", "movieId": movieId},
+        success: resultData => addToCartAlert(resultData)
     });
+}
+
+
+function addToCartAlert(resultData){
+    let resultDataJson = JSON.parse(resultData);
+    if(resultDataJson["status"] == "success"){
+        alert("Successfully add to cart.");
+    }
+    else{
+        alert("Fail to add to cart.");
+    }
+
 }
 
 
