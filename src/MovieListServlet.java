@@ -140,7 +140,7 @@ public class MovieListServlet extends HttpServlet {
             paramList.addProperty("search", search);
         }
         if(genre != null) {
-            paramList.addProperty("genre", genre);
+            paramList.addProperty("genreid", genre);
         }
         if(startwith != null) {
             paramList.addProperty("startwith", startwith);
@@ -371,8 +371,8 @@ public class MovieListServlet extends HttpServlet {
                 }
                 else if(startwith!=null){
                     if(startwith.equals("none")){
-                        query = "select m.id from (select id as movieid, title from movies where title not REGEXP '^[0-9a-zA-Z]') as m, ratings as r " +
-                                "where m.id = r.movieId " + order + limit;
+                        query = "select m.movieid from (select id as movieid, title from movies where title not REGEXP '^[0-9a-zA-Z]') as m, ratings as r " +
+                                "where m.movieid = r.movieId " + order + limit;
                     }
                     else{
                         query = "select m.movieid from (SELECT id as movieid, title from movies where title like '" + startwith + "%' or " +
