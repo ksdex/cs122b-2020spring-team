@@ -160,13 +160,31 @@ public class MovieListServlet extends HttpServlet {
             paramList.addProperty("itemNum", itemNum);
         }
 
-        System.out.println(firstSort +" " + firstSortOrder +" " +  secondSort +" " +  secondSortOrder);
-        System.out.println(offset +" " +  itemNum);
+        System.out.println(firstSort + " " + firstSortOrder +" " +  secondSort +" " +  secondSortOrder);
+        System.out.println(offset + " " +  itemNum);
         String order = getOrder(firstSort, firstSortOrder, secondSort, secondSortOrder);
         String limit = getLimit(offset, itemNum);
 
+        // counter
+        Integer startIndex = 0;
+        if(offset != null){
+            System.out.println("offset");
+            System.out.println(offset);
+            startIndex = Integer.valueOf(offset);
+        }
+        System.out.println(startIndex);
+        Integer maxIndex = 20;
+        if(itemNum != null){
+            System.out.println("itemNum");
+            System.out.println(itemNum);
+            maxIndex = Integer.valueOf(itemNum) + startIndex;
+        }
+        System.out.println("before order");
+        System.out.println(maxIndex);
+
         System.out.println(order);
         System.out.println(limit);
+
 
         System.out.println("code is here");
 
@@ -198,11 +216,9 @@ public class MovieListServlet extends HttpServlet {
                 if (director != null) {
                     paramList.addProperty("director", director);
                 }
-
                 if(starname != null && starname.indexOf("%20") != -1){
                     starname = starname.replace("%20", " ");
                 }
-
                 String[] strArray={title, director};
                 String[] name={"title","director"};
                 System.out.println("Line 81");
@@ -211,7 +227,7 @@ public class MovieListServlet extends HttpServlet {
                     int onlyStarFlag = 0;
                     if(title!=null||year!=null||director!=null){
                         query = "SELECT id as movieid from (select m.id, m.title, m.year, m.director  from movies as m, ratings as r " +
-                                "where m.id = ratings.Id " + order + ") as m where ";
+                                "where m.id = r.movieId " + order + ") as m where ";
                         int num = 1;
                         System.out.println("Line 88");
                         for (int i = 0; i< strArray.length; i++){
@@ -233,7 +249,7 @@ public class MovieListServlet extends HttpServlet {
                                 query += " and year = " + year;
                             }
                         }
-                        query += limit;
+                        System.out.println(query);
                     }
                     else{
                         onlyStarFlag = 1;
@@ -246,19 +262,20 @@ public class MovieListServlet extends HttpServlet {
                                                        " where stars_in_movies.starId = stars.id" +
                                                        " and stars.name like '%"+starname+"%') as m, ratings as r, movies as mo" +
                                     " where m.movieid = r.movieId" +
-                                    " and mo.id = r.movieId " + order + limit
+                                    " and mo.id = r.movieId " + order
                             );
                     System.out.println("line 120");
                     while(rs0.next()){
                         String mid = rs0.getString("movieid");
                         String query2="";
                         if(onlyStarFlag==0){
-                            query2 = query+" and id ='"+mid+"'";
+                            query2 = query +" and id ='"+ mid +"'";
                         }
                         else{
                             query2 = "SELECT id as movieid from movies where id='" + mid + "'";
                         }
                         Statement starStatement = dbcon.createStatement();
+                        System.out.println(query2);
                         ResultSet starrs = starStatement.executeQuery(query2);
                         while(starrs.next()){
                             String id = starrs.getString("movieid");
@@ -326,10 +343,22 @@ public class MovieListServlet extends HttpServlet {
                         starStatement.close();
                     }
                     dbcon.close();
-                    out.write(jsonArray.toString());
+                    JsonArray resultJsonArray = new JsonArray();
+                    if(jsonArray.size() < maxIndex){
+                        out.write(resultJsonArray.toString());
+                    }
+                    else if(jsonArray.size() > startIndex) {
+                        out.write(new JsonArray().toString());
+                    }
+                    else{
+                        for(int i = startIndex; i < maxIndex; i++) {
+                            resultJsonArray.add(jsonArray.get(i));
+                        }
+                        out.write(resultJsonArray.toString());
+                    }
+
                     // set response status to 200 (OK)
                     session.setAttribute("lastParamList", paramList);
-
                     response.setStatus(200);
                     out.close();
                     return;
