@@ -1,49 +1,101 @@
+// #######################################
+// Helper functions
+
+// debug
+let allowConsolePrint = 1;
+
+function consolePrint(tar){
+    if(allowConsolePrint == 1) {
+        console.log(tar.toString())
+    }
+}
+
+
+function handleReturnUrl(lastParam){
+    let url = "index.html"
+    consolePrint(lastParam);
+    consolePrint(Object.keys(lastParam).length);
+    if(Object.keys(lastParam).length <= 0){
+        return url;
+    }
+    else{
+        url += "?"
+        consolePrint(lastParam);
+        for(let item in lastParam){
+            url += item + "=" + lastParam[item] + "&";
+        }
+        url += "back=1";
+        return url;
+    }
+}
+
+
 /**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs three steps:
- *      1. Get parameter from request URL so it know which id to look for
- *      2. Use jQuery to talk to backend API to get the json data.
- *      3. Populate the data to correct html elements.
+ * Retrieve parameter from request URL, matching by parameter name
+ * @param target String
+ * @returns {*}
  */
+function getParameterByName(target) {
+    // Get request URL
+    let url = window.location.href;
+    // Encode target parameter name to url encoding
+    target = target.replace(/[\[\]]/g, "\\$&");
+
+    // Ues regular expression to find matched parameter value
+    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+
+    // Return the decoded parameter value
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 
-import {handleReturnUrl, getParameterByName, reloadPage} from './helper.js';
+function reloadPage() {
+    if(location.href.indexOf('#reloaded')==-1){
+        location.href=location.href+"#reloaded";
+        location.reload();
+    }
+}
+
+
+
+// ######################################
+
+
 
 
 /**
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
  * @param resultData jsonObject
  */
-
 function handleResult(resultData) {
 
-    console.log("handleResult: populating star info from resultData");
+    consolePrint("handleResult: populating star info from resultData");
 
     // populate the star info h3
     // find the empty h3 body by id "star_info"
     let starInfoElement = jQuery("#star_info");
 
     let lastParam = resultData[resultData.length-1];
-    console.log(lastParam);
+    consolePrint(lastParam);
     let url = handleReturnUrl(lastParam);
     document.getElementById("returnPrevMain").href = url;
-    console.log("Set url: " + url);
+    consolePrint("Set url: " + url);
 
     // append two html <p> created to the h3 body, which will refresh the page
     starInfoElement.append("<p>Star Name: " + resultData[0]["star_name"] + "</p>" +
         "<p>Date Of Birth: " + resultData[0]["star_dob"] + "</p>");
 
-    console.log("handleResult: populating movie table from resultData-----");
+    consolePrint("handleResult: populating movie table from resultData-----");
 
     // Populate the star table
     // Find the empty table body by id "movie_table_body"
     let movieTableBodyElement = jQuery("#movie_table_body");
 
     // Concatenate the html tags with resultData jsonObject to create table rows
-    console.log(resultData.length);
+    consolePrint(resultData.length);
 
     for (let i = 0; i < resultData.length-1; i++) {
         let rowHTML = "";
@@ -59,6 +111,9 @@ function handleResult(resultData) {
     window.onload = reloadPage();
 }
 
+
+
+// ##################################
 
 /**
  * Once this .js is loaded, following scripts will be executed by the browser\

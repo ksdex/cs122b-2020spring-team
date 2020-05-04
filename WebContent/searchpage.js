@@ -1,3 +1,16 @@
+// #######################################
+// Helper functions
+
+// debug
+let allowConsolePrint = 1;
+function consolePrint(tar){
+    if(allowConsolePrint == 1) {
+        console.log(tar.toString())
+    }
+}
+
+// #######################################
+
 function searchText() {
     // Get request URL
     let title = document.getElementById("title").value.toString();

@@ -1,3 +1,16 @@
+// #######################################
+// Helper functions
+
+// debug
+let allowconsolePrint = 1;
+function consolePrint(tar){
+    if(allowconsolePrint == 1) {
+        console.log(tar.toString());
+    }
+}
+
+// #######################################
+
 let login_form = window.document.getElementById("login_form");
 
 /**
@@ -7,9 +20,9 @@ let login_form = window.document.getElementById("login_form");
 function handleLoginResult(resultDataString) {
     let resultDataJson = JSON.parse(resultDataString);
 
-    console.log("handle login response");
-    console.log(resultDataJson);
-    console.log(resultDataJson["status"]);
+    consolePrint("handle login response");
+    consolePrint(resultDataJson);
+    consolePrint(resultDataJson["status"]);
 
     // If login succeeds, it will redirect the user to index.html
     if (resultDataJson["status"] === "success") {
@@ -17,8 +30,8 @@ function handleLoginResult(resultDataString) {
     } else {
         // If login fails, the web page will display 
         // error messages on <div> with id "login_error_message"
-        console.log("show error message");
-        console.log(resultDataJson["message"]);
+        consolePrint("show error message");
+        consolePrint(resultDataJson["message"]);
         $("#login_error_message").text(resultDataJson["message"]);
     }
 }
@@ -28,7 +41,7 @@ function handleLoginResult(resultDataString) {
  * @param formSubmitEvent
  */
 function submitLoginForm(formSubmitEvent) {
-    console.log("submit login form");
+    consolePrint("submit login form");
     /**
      * When users click the submit button, the browser will not direct
      * users to the url defined in HTML form. Instead, it will call this

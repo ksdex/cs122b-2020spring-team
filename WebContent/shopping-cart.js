@@ -1,32 +1,28 @@
-/**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs two steps:
- *      1. Use jQuery to talk to backend API to get the json data.
- *      2. Populate the data to correct html elements.
- */
+// #######################################
+// Helper functions
 
+// debug
+let allowConsolePrint = 1;
+function consolePrint(tar){
+    if(allowConsolePrint == 1) {
+        console.log(tar.toString())
+    }
+}
 
-/**
- * Handles the data returned by the API, read the jsonObject and populate data into html elements
- * @param resultData jsonObject
- */
-
+// #######################################
 
 let isCartEmpty = true;
 
 
 
 function handleShoppingCartResult(resultData) {
-    console.log("handleMovieResult: populating handleShoppingCartResult from resultData");
+    consolePrint("handleMovieResult: populating handleShoppingCartResult from resultData");
 
     // Populate the movie table
     // Find the empty table body by id "movie_table_body"
     let shoppingCartTableBodyElement = jQuery("#shopping_cart_body");
 
-    console.log(resultData.length);
+    consolePrint(resultData.length);
 
     if(resultData.length == 0){
         isCartEmpty = true;
@@ -62,7 +58,7 @@ function handleShoppingCartResult(resultData) {
         rowHTML += "<th>$" + (resultData[i]["price"] * resultData[i]["num"]).toFixed(2) + "</th>";
         rowHTML += "</tr>";
 
-        console.log(rowHTML);
+        consolePrint(rowHTML);
         // Append the row created to the table body, which will refresh the page
         shoppingCartTableBodyElement.append(rowHTML);
     }
@@ -72,8 +68,8 @@ function handleShoppingCartResult(resultData) {
 function changeItem(action, movieId){
     let shoppingCartTableBodyElement = document.getElementById("shopping_cart_body");
     shoppingCartTableBodyElement.innerText = "";
-    console.log("in");
-    console.log(shoppingCartTableBodyElement.innerText);
+    consolePrint("in");
+    consolePrint(shoppingCartTableBodyElement.innerText);
     $.ajax("api/shopping-cart", {
         method: "POST",
         data: {"action": action, "movieId": movieId},
@@ -83,7 +79,7 @@ function changeItem(action, movieId){
 
 
 function checkOut(){
-    console.log(isCartEmpty);
+    consolePrint(isCartEmpty);
     if(isCartEmpty == false) {
         window.location.href = "payment.html";
     }
@@ -94,6 +90,7 @@ function checkOut(){
 }
 
 
+// ##########################################
 
 /**
  * Once this .js is loaded, following scripts will be executed by the browser

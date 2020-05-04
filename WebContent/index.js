@@ -1,15 +1,59 @@
-/**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs two steps:
- *      1. Use jQuery to talk to backend API to get the json data.
- *      2. Populate the data to correct html elements.
- */
-
 import {initUpper, getAllParameter, getParameterByName} from './helper.js';
 
+// #######################################
+// Helper functions
+
+// debug
+let allowConsolePrint = 1;
+
+function consolePrint(tar){
+    if(allowConsolePrint == 1) {
+        console.log(tar.toString())
+    }
+}
+
+
+function initUpper(s){
+    return s[0].toUpperCase() + s.substring(1, s.length);
+}
+
+
+function getAllParameter(){
+    let url = window.location.href;
+    if(url.indexOf("?") == -1){
+        return null;
+    }
+    url = url.split("?")[1];
+    url = url.split("&");
+    let result = {};
+    for(let i = 0; i < url.length; i++){
+        let temp = url[i].split("=");
+        result[temp[0]] = temp[1];
+    }
+    return result;
+}
+
+
+/**
+ * Retrieve parameter from request URL, matching by parameter name
+ * @param target String
+ * @returns {*}
+ */
+function getParameterByName(target) {
+    // Get request URL
+    let url = window.location.href;
+    // Encode target parameter name to url encoding
+    target = target.replace(/[\[\]]/g, "\\$&");
+
+    // Ues regular expression to find matched parameter value
+    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+
+    // Return the decoded parameter value
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 // ################################################
 // Global variable
@@ -26,7 +70,7 @@ function changePageViewItem(numItem){
     let offset = (currentPageNum-1) * numItem;
     pageViewSet["offset"] = offset;
     pageViewSet["itemNum"] = numItem;
-    console.log(pageViewSet);
+    consolePrint(pageViewSet);
     sendCurAndMoreParam();
 }
 
@@ -34,7 +78,7 @@ function changePageViewItem(numItem){
 function jumpPrevPage(){
     let currentPageNum = Number(document.getElementById("curPage").innerText);
 
-    console.log(reachEnd);
+    consolePrint(reachEnd);
     if(reachEnd == 1){
         reachEnd = 0;
         document.getElementById("nextPage").disabled = false;
@@ -77,7 +121,7 @@ function sortListToObject(){
             result["secondSortOrder"] = handleSortOrder(listSortOrder[3]);
         }
     }
-    console.log(result);
+    consolePrint(result);
     return result;
 }
 
@@ -92,8 +136,8 @@ function theOtherSort(item){
 }
 
 function updateList(item, order){
-    console.log("update: " + item + " " + order.toString());
-    console.log(listSortOrder);
+    consolePrint("update: " + item + " " + order.toString());
+    consolePrint(listSortOrder);
     if(item != "noSort") {
         if (order == 0) {
             $("#" + item).text(item + " ↓");
@@ -104,19 +148,19 @@ function updateList(item, order){
             $("#" + theOtherSort(item)).text(theOtherSort(item));
         }
     }
-    // console.log(document.getElementById(item).textContent);
-    // console.log(document.getElementById(theOtherSort(item)).textContent);
+    // consolePrint(document.getElementById(item).textContent);
+    // consolePrint(document.getElementById(theOtherSort(item)).textContent);
 }
 
-
+/*
 function sortByItem(item, sortOrder, order){
     listSortOrder[sortOrder*2] = item;
     listSortOrder[sortOrder*2 + 1] = order;
-    console.log(listSortOrder);
+    consolePrint(listSortOrder);
     updateList(item, order);
     sendCurAndMoreParam();
 }
-
+ */
 
 function handleSortOrder(i){
     if(i == 0){
@@ -142,7 +186,7 @@ function handleSortOrderToInt(order){
 function handleSortResult(resultData){
     let starTableBodyElement = jQuery("#star_table_body");
     starTableBodyElement.text("");
-    console.log("Clear");
+    consolePrint("Clear");
     handleResult(resultData);
 }
 
@@ -151,7 +195,7 @@ function handleSortResult(resultData){
 // Handle page
 
 function handleResult(resultData) {
-    console.log("handleStarResult: populating star table from resultData");
+    consolePrint("handleStarResult: populating star table from resultData");
 
     // Populate the star table
     // Find the empty table body by id "star_table_body"
@@ -201,9 +245,9 @@ function handleResult(resultData) {
         starTableBodyElement.append(rowHTML);
     }
 
-    console.log(resultData.length);
-    console.log(pageViewSet["itemNum"]);
-    console.log(resultData.length <= pageViewSet["itemNum"].valueOf());
+    consolePrint(resultData.length);
+    consolePrint(pageViewSet["itemNum"]);
+    consolePrint(resultData.length <= pageViewSet["itemNum"].valueOf());
 
     if(resultData.length < pageViewSet["itemNum"].valueOf()){
         reachEnd = 1;
@@ -283,7 +327,7 @@ function handleBack(hasParameter){
             result += "&itemNum=" + itemNum;
             pageViewSet["itemNum"] = Number(itemNum);
         }
-        console.log("backUrl: " + result);
+        consolePrint("backUrl: " + result);
         updateList(initUpper(listSortOrder[0]), listSortOrder[1]);
         updateList(initUpper(listSortOrder[2]), listSortOrder[3]);
         //document.getElementById(initUpper(listSortOrder[0])).innerHTML = initUpper(listSortOrder[0]) + "↓";
@@ -299,7 +343,7 @@ function handleBack(hasParameter){
 
 function sendCurAndMoreParam(){
     let parameterSet = getAllParameter();
-    console.log(parameterSet);
+    consolePrint(parameterSet);
     if(parameterSet != null) {
         if (parameterSet["offset"] != null) {
             parameterSet["offset"] = pageViewSet["offset"];
@@ -308,31 +352,31 @@ function sendCurAndMoreParam(){
             parameterSet = Object.assign(parameterSet, pageViewSet);
         }
         let result = sortListToObject();
-        console.log(result);
-        console.log(parameterSet["firstSort"]);
+        consolePrint(result);
+        consolePrint(parameterSet["firstSort"]);
         if (parameterSet["firstSort"] != null) {
             let firstSort = result["firstSort"];
-            console.log(firstSort);
+            consolePrint(firstSort);
             if (firstSort != null) {
                 parameterSet["firstSort"] = firstSort;
                 parameterSet["firstSortOrder"] = result["firstSortOrder"];
-                console.log("paramterset after changing firstSort: " + parameterSet);
+                consolePrint("paramterset after changing firstSort: " + parameterSet);
                 let secondSort = result["secondSort"];
                 if (secondSort != null) {
                     parameterSet["secondSort"] = secondSort;
                     parameterSet["secondSortOrder"] = result["secondSortOrder"];
-                    console.log("paramterset after changing secondSort: " + parameterSet);
+                    consolePrint("paramterset after changing secondSort: " + parameterSet);
                 }
             }
         } else {
-            console.log("combine");
+            consolePrint("combine");
             parameterSet = Object.assign(parameterSet, sortListToObject());
         }
     }
     else{
         parameterSet = Object.assign(sortListToObject(), pageViewSet);
     }
-    console.log(parameterSet);
+    consolePrint(parameterSet);
 
     // update page
     if (parameterSet != {}) {
@@ -351,14 +395,16 @@ function sendCurAndMoreParam(){
 /**
  * Once this .js is loaded, following scripts will be executed by the browser
  */
-console.log("javascript is here")
+consolePrint("javascript is here")
 let genreid = getParameterByName('genreid');
 let startwith = getParameterByName('startwith');
 let search = getParameterByName('search');
 let back = getParameterByName('back');
 let offset = getParameterByName('offset');
 let itemNum = getParameterByName('itemNum');
+let targetUrl = "";
 let num = 0;
+// Update page number
 if(offset!=null){
     num = Number(offset)/Number(itemNum);
     if(num > 1){
@@ -387,35 +433,23 @@ if(search!=null){
         url += "&starname=" + starname;
     }
     url += handleBack(1);
-    jQuery.ajax({
-        dataType: "json", // Setting return data type
-        method: "GET", // Setting request method
-        url: url, // Setting request url, which is mapped by StarsServlet in Stars.java
-        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
-    });
+    targetUrl = url;
 }
 else if(genreid!=null){
-    jQuery.ajax({
-        dataType: "json", // Setting return data type
-        method: "GET", // Setting request method
-        url: "api/movieList?genreid="+genreid+handleBack(1), // Setting request url, which is mapped by StarsServlet in Stars.java
-        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
-    });
+    targetUrl = "api/movieList?genreid="+genreid+handleBack(back);
 }
 else if(startwith!=null){
-    jQuery.ajax({
-        dataType: "json", // Setting return data type
-        method: "GET", // Setting request method
-        url: "api/movieList?startwith="+startwith+handleBack(1), // Setting request url, which is mapped by StarsServlet in Stars.java
-        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
-    });
+    targetUrl = "api/movieList?startwith="+startwith+handleBack(back);
 }
 else{
-    console.log("everything is null");
-    jQuery.ajax({
-        dataType: "json", // Setting return data type
-        method: "GET", // Setting request method
-        url: "api/movieList" + handleBack(0), // Setting request url, which is mapped by StarsServlet in Stars.java
-        success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
-    });
+    consolePrint("everything is null");
+    targetUrl = "api/movieList" + handleBack(back);
 }
+
+consolePrint(targetUrl);
+jQuery.ajax({
+    dataType: "json",
+    method: "GET",
+    url: targetUrl,
+    success: (resultData) => handleResult(resultData)
+});

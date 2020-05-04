@@ -17,7 +17,6 @@ public class LoginFilter implements Filter {
      */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -26,12 +25,15 @@ public class LoginFilter implements Filter {
         // Check if this URL is allowed to access without logging in
         if (this.isUrlAllowedWithoutLogin(httpRequest.getRequestURI())) {
             // Keep default action: pass along the filter chain
+            System.out.println("allowed without login");
             chain.doFilter(request, response);
+            System.out.println("return????");
             return;
         }
 
         // Redirect to login page if the "user" attribute doesn't exist in session
         if (httpRequest.getSession().getAttribute("user") == null) {
+            System.out.println("user is null");
             httpResponse.sendRedirect("login.html");
         } else {
             chain.doFilter(request, response);

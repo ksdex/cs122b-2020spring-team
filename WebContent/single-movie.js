@@ -1,36 +1,87 @@
-/**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs two steps:
- *      1. Use jQuery to talk to backend API to get the json data.
- *      2. Populate the data to correct html elements.
- */
+// #######################################
+// Helper functions
 
-import {handleReturnUrl, getParameterByName, reloadPage} from './helper.js';
+// debug
+let allowConsolePrint = 1;
+function consolePrint(tar){
+    if(allowConsolePrint == 1) {
+        console.log(tar.toString())
+    }
+}
+
+function handleReturnUrl(lastParam){
+    let url = "index.html"
+    consolePrint(lastParam);
+    consolePrint(Object.keys(lastParam).length);
+    if(Object.keys(lastParam).length <= 0){
+        return url;
+    }
+    else{
+        url += "?"
+        consolePrint(lastParam);
+        for(let item in lastParam){
+            url += item + "=" + lastParam[item] + "&";
+        }
+        url += "back=1";
+        return url;
+    }
+}
+
+
+/**
+ * Retrieve parameter from request URL, matching by parameter name
+ * @param target String
+ * @returns {*}
+ */
+function getParameterByName(target) {
+    // Get request URL
+    let url = window.location.href;
+    // Encode target parameter name to url encoding
+    target = target.replace(/[\[\]]/g, "\\$&");
+
+    // Ues regular expression to find matched parameter value
+    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+
+    // Return the decoded parameter value
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+
+function reloadPage() {
+    if(location.href.indexOf('#reloaded')==-1){
+        location.href=location.href+"#reloaded";
+        location.reload();
+    }
+}
+
+
+
+// ######################################
 
 
 function handleMovieResult(resultData) {
-    console.log("handleMovieResult: populating movie table from resultData?");
+    consolePrint("handleMovieResult: populating movie table from resultData?");
 
     // Populate the movie table
     // Find the empty table body by id "movie_table_body"
     let movieTableBodyElement = jQuery("#movie_table_body");
 
     let lastParam = resultData[resultData.length-1];
-    console.log(lastParam);
+    consolePrint(lastParam);
     let url = handleReturnUrl(lastParam);
     document.getElementById("returnPrevMain").href = url;
-    console.log("Set url: " + url + "?");
-    console.log("?");
-    console.log(resultData.length);
+    consolePrint("Set url: " + url + "?");
+    consolePrint("?");
+    consolePrint(resultData.length);
 
     // Iterate through resultData, no more than 20 entries -> Top 20 rated movies
     for (let i = 0; i < resultData.length-1; i++) {
         let rowHTML = "";
-        console.log("in for");
-        console.log(resultData.length);
+        consolePrint("in for");
+        consolePrint(resultData.length);
 
         rowHTML += "<tr>";
         rowHTML +=
@@ -42,7 +93,7 @@ function handleMovieResult(resultData) {
             "<br><button class='butt' id='addToShoppingCart' onclick=\"addToCart(\'" + resultData[i]['movie_id'] + "\')\"> Add to Cart </button>" +
             "</th>";
 
-        console.log(rowHTML);
+        consolePrint(rowHTML);
 
         rowHTML += "<th>" + resultData[i]['movie_year'] + "</th>";
         rowHTML += "<th>" + resultData[i]['movie_director'] + "</th>";

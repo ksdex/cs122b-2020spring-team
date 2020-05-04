@@ -1,22 +1,20 @@
-/**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs two steps:
- *      1. Use jQuery to talk to backend API to get the json data.
- *      2. Populate the data to correct html elements.
- */
+// #######################################
+// Helper functions
+
+// debug
+let allowConsolePrint = 1;
+function consolePrint(tar){
+    if(allowConsolePrint == 1) {
+        console.log(tar.toString())
+    }
+}
 
 
-/**
- * Handles the data returned by the API, read the jsonObject and populate data into html elements
- * @param resultData jsonObject
- */
+// #######################################
 
 
 function handleConfirmationResult(resultData) {
-    console.log("handleMovieResult: populating handleConfirmationResult from resultData");
+    consolePrint("handleMovieResult: populating handleConfirmationResult from resultData");
 
     // Populate the movie table
     // Find the empty table body by id "movie_table_body"
@@ -36,7 +34,7 @@ function handleConfirmationResult(resultData) {
         rowHTML += "<th>$" + (resultData[i]["price"] * resultData[i]["num"]).toFixed(2) + "</th>";
         rowHTML += "</tr>";
 
-        console.log(rowHTML);
+        consolePrint(rowHTML);
         // Append the row created to the table body, which will refresh the page
         confirmationBodyElement.append(rowHTML);
     }
@@ -48,6 +46,7 @@ function back(){
 }
 
 
+// #######################################################
 
 /**
  * Once this .js is loaded, following scripts will be executed by the browser
