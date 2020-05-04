@@ -8,53 +8,8 @@
  *      2. Populate the data to correct html elements.
  */
 
+import {handleReturnUrl, getParameterByName, reloadPage} from './helper.js';
 
-/**
- * Handles the data returned by the API, read the jsonObject and populate data into html elements
- * @param resultData jsonObject
- */
-
-function getParameterByName(target) {
-    // Get request URL
-    let url = window.location.href;
-    // Encode target parameter name to url encoding
-    target = target.replace(/[\[\]]/g, "\\$&");
-
-    // Ues regular expression to find matched parameter value
-    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-
-    // Return the decoded parameter value
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-
-function handleReturnUrl(lastParam){
-    let url = "index.html"
-    console.log(lastParam);
-    console.log(Object.keys(lastParam).length);
-    if(Object.keys(lastParam).length <= 0){
-        return url;
-    }
-    else{
-        url += "?"
-        console.log(lastParam);
-        for(let item in lastParam){
-            url += item + "=" + lastParam[item] + "&";
-        }
-        url += "back=1";
-        return url;
-    }
-}
-
-function reloadPage() {
-    if(location.href.indexOf('#reloaded')==-1){
-        location.href=location.href+"#reloaded";
-        location.reload();
-    }
-}
 
 function handleMovieResult(resultData) {
     console.log("handleMovieResult: populating movie table from resultData?");
@@ -142,7 +97,6 @@ function addToCartAlert(resultData){
     else{
         alert("Fail to add to cart.");
     }
-
 }
 
 

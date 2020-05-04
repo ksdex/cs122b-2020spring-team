@@ -344,19 +344,23 @@ public class MovieListServlet extends HttpServlet {
                     }
                     dbcon.close();
                     JsonArray resultJsonArray = new JsonArray();
+                    System.out.println(startIndex + " " + maxIndex);
+                    System.out.println(jsonArray.size());
                     if(jsonArray.size() < maxIndex){
-                        out.write(resultJsonArray.toString());
+                        System.out.println("< maxIndex");
+                        out.write(jsonArray.toString());
                     }
                     else if(jsonArray.size() > startIndex) {
+                        System.out.println("> startIndex");
                         out.write(new JsonArray().toString());
                     }
                     else{
+                        System.out.println(" slice ");
                         for(int i = startIndex; i < maxIndex; i++) {
                             resultJsonArray.add(jsonArray.get(i));
                         }
                         out.write(resultJsonArray.toString());
                     }
-
                     // set response status to 200 (OK)
                     session.setAttribute("lastParamList", paramList);
                     response.setStatus(200);

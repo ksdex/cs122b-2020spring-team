@@ -10,51 +10,8 @@
  */
 
 
-/**
- * Retrieve parameter from request URL, matching by parameter name
- * @param target String
- * @returns {*}
- */
-function getParameterByName(target) {
-    // Get request URL
-    let url = window.location.href;
-    // Encode target parameter name to url encoding
-    target = target.replace(/[\[\]]/g, "\\$&");
+import {handleReturnUrl, getParameterByName, reloadPage} from './helper.js';
 
-    // Ues regular expression to find matched parameter value
-    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-
-    // Return the decoded parameter value
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-function reloadPage() {
-    if(location.href.indexOf('#reloaded')==-1){
-        location.href=location.href+"#reloaded";
-        location.reload();
-    }
-}
-
-function handleReturnUrl(lastParam){
-    let url = "index.html"
-    console.log(lastParam);
-    console.log(Object.keys(lastParam).length);
-    if(Object.keys(lastParam).length <= 0){
-        return url;
-    }
-    else{
-        url += "?"
-        console.log(lastParam);
-        for(let item in lastParam){
-            url += item + "=" + lastParam[item] + "&";
-        }
-        url += "back=1";
-        return url;
-    }
-}
 
 /**
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
@@ -99,7 +56,7 @@ function handleResult(resultData) {
         // Append the row created to the table body, which will refresh the page
         movieTableBodyElement.append(rowHTML);
     }
-    window.onload=reloadPage();
+    window.onload = reloadPage();
 }
 
 

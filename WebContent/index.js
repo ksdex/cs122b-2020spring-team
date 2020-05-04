@@ -8,99 +8,8 @@
  *      2. Populate the data to correct html elements.
  */
 
+import {initUpper, getAllParameter, getParameterByName} from './helper.js';
 
-/**
- * Handles the data returned by the API, read the jsonObject and populate data into html elements
- * @param resultData jsonObject
- */
-
-// #######################################
-// Helper function
-function getParameterByName(target) {
-    // Get request URL
-    let url = window.location.href;
-    // Encode target parameter name to url encoding
-    target = target.replace(/[\[\]]/g, "\\$&");
-
-    // Ues regular expression to find matched parameter value
-    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-
-    // Return the decoded parameter value
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-
-function getAllParameter(){
-    let url = window.location.href;
-    if(url.indexOf("?") == -1){
-        return null;
-    }
-    url = url.split("?")[1];
-    url = url.split("&");
-    let result = {};
-    for(let i = 0; i < url.length; i++){
-        let temp = url[i].split("=");
-        result[temp[0]] = temp[1];
-    }
-    return result;
-}
-
-function initUpper(s){
-    return s[0].toUpperCase() + s.substring(1, s.length);
-}
-
-
-function sendCurAndMoreParam(){
-    let parameterSet = getAllParameter();
-    console.log(parameterSet);
-    if(parameterSet != null) {
-        if (parameterSet["offset"] != null) {
-            parameterSet["offset"] = pageViewSet["offset"];
-            parameterSet["itemNum"] = pageViewSet["itemNum"];
-        } else {
-            parameterSet = Object.assign(parameterSet, pageViewSet);
-        }
-        let result = sortListToObject();
-        console.log(result);
-        console.log(parameterSet["firstSort"]);
-        if (parameterSet["firstSort"] != null) {
-            let firstSort = result["firstSort"];
-            console.log(firstSort);
-            if (firstSort != null) {
-                parameterSet["firstSort"] = firstSort;
-                parameterSet["firstSortOrder"] = result["firstSortOrder"];
-                console.log("paramterset after changing firstSort: " + parameterSet);
-                let secondSort = result["secondSort"];
-                if (secondSort != null) {
-                    parameterSet["secondSort"] = secondSort;
-                    parameterSet["secondSortOrder"] = result["secondSortOrder"];
-                    console.log("paramterset after changing secondSort: " + parameterSet);
-                }
-            }
-        } else {
-            console.log("combine");
-            parameterSet = Object.assign(parameterSet, sortListToObject());
-        }
-    }
-    else{
-         parameterSet = Object.assign(sortListToObject(), pageViewSet);
-    }
-    console.log(parameterSet);
-
-    // update page
-    if (parameterSet != {}) {
-        $.ajax(
-            "api/movieList", {
-                method: "POST",
-                data: parameterSet,
-                success: (resultData) => handleSortResult(resultData)
-            }
-        );
-    }
-}
 
 // ################################################
 // Global variable
@@ -385,6 +294,56 @@ function handleBack(hasParameter){
         return "";
     }
 
+}
+
+
+function sendCurAndMoreParam(){
+    let parameterSet = getAllParameter();
+    console.log(parameterSet);
+    if(parameterSet != null) {
+        if (parameterSet["offset"] != null) {
+            parameterSet["offset"] = pageViewSet["offset"];
+            parameterSet["itemNum"] = pageViewSet["itemNum"];
+        } else {
+            parameterSet = Object.assign(parameterSet, pageViewSet);
+        }
+        let result = sortListToObject();
+        console.log(result);
+        console.log(parameterSet["firstSort"]);
+        if (parameterSet["firstSort"] != null) {
+            let firstSort = result["firstSort"];
+            console.log(firstSort);
+            if (firstSort != null) {
+                parameterSet["firstSort"] = firstSort;
+                parameterSet["firstSortOrder"] = result["firstSortOrder"];
+                console.log("paramterset after changing firstSort: " + parameterSet);
+                let secondSort = result["secondSort"];
+                if (secondSort != null) {
+                    parameterSet["secondSort"] = secondSort;
+                    parameterSet["secondSortOrder"] = result["secondSortOrder"];
+                    console.log("paramterset after changing secondSort: " + parameterSet);
+                }
+            }
+        } else {
+            console.log("combine");
+            parameterSet = Object.assign(parameterSet, sortListToObject());
+        }
+    }
+    else{
+        parameterSet = Object.assign(sortListToObject(), pageViewSet);
+    }
+    console.log(parameterSet);
+
+    // update page
+    if (parameterSet != {}) {
+        $.ajax(
+            "api/movieList", {
+                method: "POST",
+                data: parameterSet,
+                success: (resultData) => handleSortResult(resultData)
+            }
+        );
+    }
 }
 
 

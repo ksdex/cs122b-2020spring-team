@@ -19,8 +19,6 @@ let isCartEmpty = true;
 
 
 
-
-
 function handleShoppingCartResult(resultData) {
     console.log("handleMovieResult: populating handleShoppingCartResult from resultData");
 

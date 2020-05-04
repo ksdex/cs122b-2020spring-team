@@ -39,7 +39,8 @@ public class LoginServlet extends HttpServlet {
             RecaptchaVerifyUtils.verify(gRecaptchaResponse);
         } catch (Exception e) {
             responseJsonObject.addProperty("status", "fail");
-            responseJsonObject.addProperty("message", e.getMessage());
+            // gRecaptcha error message: e.getMessage()
+            responseJsonObject.addProperty("message", "Error: Please indicate you're a person");
             response.getWriter().write(responseJsonObject.toString());
             return;
         }
@@ -50,7 +51,7 @@ public class LoginServlet extends HttpServlet {
         /  in the real project, you should talk to the database to verify email/password
         */
 
-        int sameuser = 0;
+        // int sameuser = 0;
         try {
             dbcon = dataSource.getConnection();
             Statement statement = dbcon.createStatement();

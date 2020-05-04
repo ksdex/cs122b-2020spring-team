@@ -1,4 +1,4 @@
-let login_form = $("#login_form");
+let login_form = window.document.getElementById("login_form");
 
 /**
  * Handle the data returned by LoginServlet
