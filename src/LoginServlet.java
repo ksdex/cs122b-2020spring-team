@@ -34,15 +34,15 @@ public class LoginServlet extends HttpServlet {
         Connection dbcon = null;
 
         // Verify reCAPTCHA
-        try {
-            RecaptchaVerifyUtils.verify(gRecaptchaResponse);
-        } catch (Exception e) {
-            responseJsonObject.addProperty("status", "fail");
-            // gRecaptcha error message: e.getMessage()
-            responseJsonObject.addProperty("message", "Error: Please indicate you're a person");
-            response.getWriter().write(responseJsonObject.toString());
-            return;
-        }
+//        try {
+//            RecaptchaVerifyUtils.verify(gRecaptchaResponse);
+//        } catch (Exception e) {
+//            responseJsonObject.addProperty("status", "fail");
+//            // gRecaptcha error message: e.getMessage()
+//            responseJsonObject.addProperty("message", "Error: Please indicate you're a person");
+//            response.getWriter().write(responseJsonObject.toString());
+//            return;
+//        }
 
         // If reCAPTCHA is verified
         String email = request.getParameter("email");

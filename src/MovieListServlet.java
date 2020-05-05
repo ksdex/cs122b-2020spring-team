@@ -134,11 +134,11 @@ public class MovieListServlet extends HttpServlet {
         }
         else if (paramList.startwith != null) {
             if(paramList.startwith.equals("none")) {
-                baseQuery += " where title not REGEXP '^[0-9a-zA-Z]' and m.movieid = r.movieId ";
+                baseQuery += " where title not REGEXP '^[0-9a-zA-Z]' and m.id = r.movieId ";
             }
             else {
                 baseQuery += " where title like '" + paramList.startwith + "%' or title like '" + paramList.startwith.toUpperCase() + "%'" +
-                                " and m.movieid = r.movieId ";
+                                " and m.id = r.movieId ";
             }
         }
         return baseQuery + order + limit;

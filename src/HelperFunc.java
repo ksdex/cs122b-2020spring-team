@@ -19,7 +19,7 @@ public class HelperFunc {
 
     static public void printToConsole(Object tar){
         if(debugMode){
-            System.out.println(tar.toString());
+            System.out.println(tar);
         }
     }
 
