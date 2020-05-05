@@ -85,7 +85,7 @@ public class HelperFunc {
         JsonArray jsonArray = new JsonArray();
         // Iterate through each row of rs
         while (rs.next()) {
-            String movie_id = rs.getString("id");
+            String movie_id = rs.getString("movieid");
             String movie_title = rs.getString("title");
             String movie_year = rs.getString("year");
             String movie_director = rs.getString("director");

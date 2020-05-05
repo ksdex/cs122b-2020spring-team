@@ -87,16 +87,16 @@ public class MovieListServlet extends HttpServlet {
 
     private String addBaseQueryConnector(boolean isFirstParam){
         if(!isFirstParam){
-            return "where ";
+            return "and ";
         }
         else{
-            return "and ";
+            return "where ";
         }
     }
 
 
     private String getSqlString(SessionParamList paramList, String order, String limit){
-        String baseQuery = "select m.id as movieid, m.title, m.year, m.director, r.rating from movies as m, ratings as r ";
+        String baseQuery = "select distinct m.id as movieid, m.title, m.year, m.director, r.rating from movies as m, ratings as r ";
         if(paramList.search != null){
             baseQuery += ", stars_in_movies as sim, stars as s ";
             String movieStarRatingMatch = "where m.id = sim.movieId " +
@@ -127,7 +127,7 @@ public class MovieListServlet extends HttpServlet {
             baseQuery += movieStarRatingMatch;
         }
         else if (paramList.genre != null){
-            baseQuery += "genres_in_movies as g " +
+            baseQuery += ", genres_in_movies as g " +
                             "where m.id = g.movieId " +
                             "and m.id = r.movieId " +
                             "and g.genreId = " + paramList.genre;
@@ -137,9 +137,12 @@ public class MovieListServlet extends HttpServlet {
                 baseQuery += " where title not REGEXP '^[0-9a-zA-Z]' and m.id = r.movieId ";
             }
             else {
-                baseQuery += " where title like '" + paramList.startwith + "%' or title like '" + paramList.startwith.toUpperCase() + "%'" +
+                baseQuery += " where (title like '" + paramList.startwith + "%' or title like '" + paramList.startwith.toUpperCase() + "%')" +
                                 " and m.id = r.movieId ";
             }
+        }
+        else{
+            baseQuery += "where m.id = r.movieId ";
         }
         return baseQuery + order + limit;
     }
