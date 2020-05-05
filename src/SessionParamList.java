@@ -37,4 +37,27 @@ public class SessionParamList {
         year = request.getParameter("year");
         director = request.getParameter("director");
     }
+
+
+    private String returnNullString(Object tar){
+        if(tar == null){
+            return "null(value)";
+        }
+        else{
+            return tar.toString();
+        }
+    }
+
+
+    public String toString(){
+        return "search=" + returnNullString(search) + " | genre=" + returnNullString(genre) +
+                " \n| startwith=" + returnNullString(startwith) + " | back=" + returnNullString(back) +
+                " \n| firstSort=" + returnNullString(firstSort) + " | firstSortOrder=" + returnNullString(firstSortOrder) +
+                " \n| back=" + returnNullString(back) + " | back=" + returnNullString(back) +
+                " \n| secondSort=" + returnNullString(secondSort) + " | secondSortOrder=" + returnNullString(secondSortOrder) +
+                " \n| secondSortOrder=" + returnNullString(secondSortOrder) + " | secondSortOrder=" + returnNullString(secondSortOrder) +
+                " \n| offset=" + returnNullString(offset) + " | itemNum=" + returnNullString(itemNum) +
+                " \n| starname=" + returnNullString(starname) + " | title=" + returnNullString(title) +
+                " \n| year=" + returnNullString(year) + " | director=" + returnNullString(director);
+    }
 }

@@ -6,7 +6,7 @@ let allowConsolePrint = 1;
 
 function consolePrint(tar){
     if(allowConsolePrint == 1) {
-        console.log(tar.toString())
+        console.log(tar);
     }
 }
 
@@ -434,14 +434,14 @@ if(search!=null){
     targetUrl = url;
 }
 else if(genreid!=null){
-    targetUrl = "api/movieList?genreid="+genreid+handleBack(back);
+    targetUrl = "api/movieList?genreid="+genreid+handleBack(1);
 }
 else if(startwith!=null){
-    targetUrl = "api/movieList?startwith="+startwith+handleBack(back);
+    targetUrl = "api/movieList?startwith="+startwith+handleBack(1);
 }
 else{
     consolePrint("everything is null");
-    targetUrl = "api/movieList" + handleBack(back);
+    targetUrl = "api/movieList" + handleBack(0);
 }
 
 consolePrint(targetUrl);

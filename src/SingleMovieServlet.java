@@ -21,7 +21,7 @@ import java.util.Map;
 
 // Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
 @WebServlet(name = "SingleMovieServlet", urlPatterns = "/api/single-movie")
-public class SingleMovieServlet extends HttpServlet {
+public class    SingleMovieServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // Create a dataSource which registered in web.xml

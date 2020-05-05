@@ -97,6 +97,7 @@ public class SingleStarServlet extends HttpServlet {
 			// last item: lastParamJson
 			HttpSession session = request.getSession();
 			SessionParamList lastParam = (SessionParamList) session.getAttribute("lastParamList");
+			HelperFunc.printToConsole(lastParam);
 			if(lastParam != null){
 				jsonArray.add(HelperFunc.sessionParamToJsonObject(lastParam));
 			}

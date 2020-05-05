@@ -6,7 +6,7 @@ let allowConsolePrint = 1;
 
 function consolePrint(tar){
     if(allowConsolePrint == 1) {
-        console.log(tar.toString())
+        console.log(tar);
     }
 }
 
@@ -22,9 +22,12 @@ function handleReturnUrl(lastParam){
         url += "?"
         consolePrint(lastParam);
         for(let item in lastParam){
-            url += item + "=" + lastParam[item] + "&";
+            if(lastParam[item] != null) {
+                url += item + "=" + lastParam[item] + "&";
+            }
         }
         url += "back=1";
+        consolePrint(url);
         return url;
     }
 }

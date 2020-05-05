@@ -5,7 +5,7 @@
 let allowConsolePrint = 1;
 function consolePrint(tar){
     if(allowConsolePrint == 1) {
-        console.log(tar.toString())
+        console.log(tar);
     }
 }
 

@@ -18,6 +18,7 @@ public class LoginFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        /*
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -29,7 +30,7 @@ public class LoginFilter implements Filter {
         if (this.isUrlAllowedWithoutLogin(httpRequest.getRequestURI())) {
             // Keep default action: pass along the filter chain
             HelperFunc.printToConsole("allowed without login");
-            chain.doFilter(request, response);
+            // chain.doFilter(request, response);
             HelperFunc.printToConsole("return????");
             return;
         }
@@ -41,6 +42,8 @@ public class LoginFilter implements Filter {
         } else {
             chain.doFilter(request, response);
         }
+
+         */
     }
 
     private boolean isUrlAllowedWithoutLogin(String requestURI) {
