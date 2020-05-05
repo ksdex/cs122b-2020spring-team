@@ -98,11 +98,15 @@ public class MovieListServlet extends HttpServlet {
     private String getSqlString(SessionParamList paramList, String order, String limit){
         String baseQuery = "select distinct m.id as movieid, m.title, m.year, m.director, r.rating from movies as m, ratings as r ";
         if(paramList.search != null){
-            baseQuery += ", stars_in_movies as sim, stars as s ";
-            String movieStarRatingMatch = "where m.id = sim.movieId " +
-                                            "and sim.starId = s.id " +
-                                            "and r.movieId = m.id ";
             boolean isFirstParam = true;
+            if(paramList.starname != null){
+                baseQuery += ", stars_in_movies as sim, stars as s ";
+                String movieStarRatingMatch = "where m.id = sim.movieId " + "and sim.starId = s.id " + "and r.movieId = m.id " +
+                        "and s.name like '%"+paramList.starname+"%' ";
+                baseQuery += movieStarRatingMatch;
+                isFirstParam = false;
+            }
+
             // Search for title
             if(paramList.title != null){
                 baseQuery += addBaseQueryConnector(isFirstParam) + "m.title like '%" + getRidOfBlankInUrl(paramList.title) + "%'";
@@ -119,12 +123,7 @@ public class MovieListServlet extends HttpServlet {
                 baseQuery += addBaseQueryConnector(isFirstParam) + "m.year = " + paramList.year;
                 isFirstParam = false;
             }
-            // Search for starname
-            if(paramList.starname != null){
-                baseQuery += addBaseQueryConnector(isFirstParam) + "s.name like '%" + getRidOfBlankInUrl(paramList.starname) + "%'";
-                isFirstParam = false;
-            }
-            baseQuery += movieStarRatingMatch;
+            baseQuery += " and r.movieId = m.id ";
         }
         else if (paramList.genre != null){
             baseQuery += ", genres_in_movies as g " +
