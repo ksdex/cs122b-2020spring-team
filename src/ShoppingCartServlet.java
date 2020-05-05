@@ -29,17 +29,17 @@ public class ShoppingCartServlet extends HttpServlet {
 
 
     private float getPriceFromId(String id){
-        String temp = id.substring(id.length()-2, id.length());
+        String temp = id.substring(id.length()-2);
         return Float.parseFloat(temp) / 10;
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        System.out.println("action: ");
-        System.out.println(action);
+        HelperFunc.printToConsole("action: ");
+        HelperFunc.printToConsole(action);
         if(action != null) {
-            System.out.println("Post: action not null");
-            System.out.println(action);
+            HelperFunc.printToConsole("Post: action not null");
+            HelperFunc.printToConsole(action);
             String movieId = request.getParameter("movieId");
             HttpSession session = request.getSession();
             Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
@@ -63,8 +63,8 @@ public class ShoppingCartServlet extends HttpServlet {
                     cartItems.put(movieId, temp);
                 }
             }
-            System.out.println(movieId);
-            System.out.println(cartItems);
+            HelperFunc.printToConsole(movieId);
+            HelperFunc.printToConsole(cartItems);
             session.setAttribute("cartItems", cartItems);
             doGet(request, response);
         }
@@ -89,7 +89,6 @@ public class ShoppingCartServlet extends HttpServlet {
                 Connection dbcon = dataSource.getConnection();
 
                 JsonArray jsonArray = new JsonArray();
-                Random r = new Random();
                 for (Map.Entry<String, float[]> entry : cartItems.entrySet()) {
                     // Declare our statement
                     String movieId = entry.getKey();
@@ -121,7 +120,7 @@ public class ShoppingCartServlet extends HttpServlet {
                 // set response status to 200 (OK)
                 response.setStatus(200);
                 dbcon.close();
-                System.out.println("SingleMovieServletReturn");
+                HelperFunc.printToConsole("SingleMovieServletReturn");
                 out.close();
 
             } catch (Exception e) {

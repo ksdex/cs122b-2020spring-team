@@ -47,7 +47,9 @@ public class SingleStarServlet extends HttpServlet {
 			Connection dbcon = dataSource.getConnection();
 
 			// Construct a query with parameter represented by "?"
-			String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m where m.id = sim.movieId and sim.starId = s.id and s.id = ? order by m.year desc, m.title asc";
+			String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m " +
+							"where m.id = sim.movieId and sim.starId = s.id and s.id = ? " +
+							"order by m.year desc, m.title asc";
 
 			// Declare our statement
 			PreparedStatement statement = dbcon.prepareStatement(query);
@@ -73,7 +75,6 @@ public class SingleStarServlet extends HttpServlet {
 				String movieDirector = rs.getString("director");
 
 				// Create a JsonObject based on the data we retrieve from rs
-
 				JsonObject jsonObject = new JsonObject();
 				jsonObject.addProperty("star_id", starId);
 				jsonObject.addProperty("star_name", starName);
@@ -89,15 +90,15 @@ public class SingleStarServlet extends HttpServlet {
 				jsonObject.addProperty("movie_year", movieYear);
 				jsonObject.addProperty("movie_director", movieDirector);
 
-				System.out.println(movieTitle);
+				HelperFunc.printToConsole(movieTitle);
 				jsonArray.add(jsonObject);
 			}
 
 			// last item: lastParamJson
 			HttpSession session = request.getSession();
-			JsonObject lastParam = (JsonObject) session.getAttribute("lastParamList");
+			SessionParamList lastParam = (SessionParamList) session.getAttribute("lastParamList");
 			if(lastParam != null){
-				jsonArray.add(lastParam);
+				jsonArray.add(HelperFunc.sessionParamToJsonObject(lastParam));
 			}
 			
             // write JSON string to output

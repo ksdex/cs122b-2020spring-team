@@ -28,9 +28,8 @@ public class LoginServlet extends HttpServlet {
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
-        System.out.println("gRecaptchaResponse=" + gRecaptchaResponse);
+        HelperFunc.printToConsole("gRecaptchaResponse=" + gRecaptchaResponse);
         JsonObject responseJsonObject = new JsonObject();
         Connection dbcon = null;
 
@@ -44,33 +43,31 @@ public class LoginServlet extends HttpServlet {
             response.getWriter().write(responseJsonObject.toString());
             return;
         }
+
+        // If reCAPTCHA is verified
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-
-        /* This example only allows email/password to be test/test
-        /  in the real project, you should talk to the database to verify email/password
-        */
-
         // int sameuser = 0;
         try {
             dbcon = dataSource.getConnection();
             Statement statement = dbcon.createStatement();
             String query = "SELECT password, id from customers where email = '"+email+"'";
             ResultSet rs = statement.executeQuery(query);
+            // Process database output
             if(!rs.next()){
                 responseJsonObject.addProperty("status", "fail");
                 responseJsonObject.addProperty("message", "user " + email + " doesn't exist");
             }
             else{
-                String customerId = rs.getString("id");
                 if(verifyCredentials(email,password)){
-                    request.getSession().setAttribute("user", new User(email));
-                    request.getSession().setAttribute("accessBoolean", true);
+                    // Set session
+                    HttpSession session = request.getSession();
+                    session.setAttribute("user", rs.getString("id"));
+                    session.setAttribute("accessBoolean", true);
+                    // Add property to the result jsonObject
                     responseJsonObject.addProperty("status", "success");
                     responseJsonObject.addProperty("message", "success");
 
-                    HttpSession session = request.getSession();
-                    session.setAttribute("user", customerId);
                 }
                 else{
                     responseJsonObject.addProperty("status", "fail");
@@ -88,6 +85,7 @@ public class LoginServlet extends HttpServlet {
 
         response.getWriter().write(responseJsonObject.toString());
     }
+
 
     private static boolean verifyCredentials(String email, String password) throws Exception {
 
@@ -116,7 +114,7 @@ public class LoginServlet extends HttpServlet {
         statement.close();
         connection.close();
 
-        System.out.println("verify " + email + " - " + password);
+        HelperFunc.printToConsole("verify " + email + " - " + password);
 
         return success;
     }

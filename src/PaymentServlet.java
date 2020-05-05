@@ -42,6 +42,7 @@ public class PaymentServlet extends HttpServlet {
         return date;
     }
 
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String firstName = request.getParameter("firstName");
@@ -49,50 +50,51 @@ public class PaymentServlet extends HttpServlet {
         String cardNum = request.getParameter("cardNum");
         String expirDate = request.getParameter("expirDate");
 
-        /* This example only allows email/password to be test/test
-        /  in the real project, you should talk to the database to verify email/password
-        */
         JsonObject responseJsonObject = new JsonObject();
         Connection dbcon = null;
         try {
             java.sql.Date date = strToDate(expirDate);
+            // If date info is not correctly formatted
             if(date == null){
-                System.out.println("fail");
+                HelperFunc.printToConsole("fail");
                 responseJsonObject.addProperty("status", "fail");
                 responseJsonObject.addProperty("message", "Payment information is invalid.");
             }
+            // If date info is correctly formatted -> check database
             else {
                 dbcon = dataSource.getConnection();
                 Statement statement = dbcon.createStatement();
-                String query = "SELECT * from creditcards as c where id = '" + cardNum + "'" +
-                        " and firstName = '" + firstName + "'" +
-                        " and lastName = '" + lastName + "'" +
-                        " and expiration = '" + date + "'";
+                String query = "SELECT * from creditcards as c " +
+                                " where id = '" + cardNum + "'" +
+                                " and firstName = '" + firstName + "'" +
+                                " and lastName = '" + lastName + "'" +
+                                " and expiration = '" + date + "'";
                 ResultSet rs = statement.executeQuery(query);
                 if (!rs.next()) {
-                    System.out.println("fail");
+                    HelperFunc.printToConsole("fail");
                     responseJsonObject.addProperty("status", "fail");
                     responseJsonObject.addProperty("message", "Payment information is invalid.");
                 } else {
-                    System.out.println("success");
+                    HelperFunc.printToConsole("success");
                     responseJsonObject.addProperty("status", "success");
                     responseJsonObject.addProperty("message", "success");
 
+                    // If success, write this purchase record to the database
                     HttpSession session = request.getSession();
                     String customerId = (String) session.getAttribute("user");
                     Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
                     for (Map.Entry<String, float[]> entry : cartItems.entrySet()) {
                         String movieId = entry.getKey();
                         float[] itemInfo = entry.getValue();
-                        Date day=new Date();
+                        Date day = new Date();
                         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                         String d = df.format(day);
                         for(int i = 0; i < itemInfo[0]; i++) {
                             String query2 = "insert into sales (customerId, movieId, saleDate) values (" +
-                                    customerId + ", '" + movieId + "', '" + d + "')";
+                                                customerId + ", '" + movieId + "', '" + d + "')";
                             Statement statement2 = dbcon.createStatement();
                             int retID = statement2.executeUpdate(query2);
-                            System.out.println("retId" + retID);
+                            HelperFunc.printToConsole("retId" + retID);
                             statement2.close();
                         }
                     }
@@ -101,13 +103,14 @@ public class PaymentServlet extends HttpServlet {
                 rs.close();
                 statement.close();
             }
-            System.out.println("?");
-            System.out.println(responseJsonObject);
+            HelperFunc.printToConsole("?");
+            HelperFunc.printToConsole(responseJsonObject);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        response.getWriter().write(responseJsonObject.toString());
-
+        PrintWriter out = response.getWriter();
+        out.write(responseJsonObject.toString());
+        out.close();
     }
 
 
@@ -130,12 +133,12 @@ public class PaymentServlet extends HttpServlet {
                     price += itemInfo[0] * itemInfo[1];
                 }
             }
-            System.out.println(price);
+            HelperFunc.printToConsole(price);
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("price", price);
             jsonArray.add(jsonObject);
             out.write(jsonArray.toString());
-            System.out.println(jsonArray.toString());
+            HelperFunc.printToConsole(jsonArray.toString());
             // set response status to 200 (OK)
             response.setStatus(200);
             out.close();

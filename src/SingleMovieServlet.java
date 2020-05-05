@@ -31,54 +31,21 @@ public class SingleMovieServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        System.out.println("action: ");
-        System.out.println(action);
+        HelperFunc.printToConsole("action: ");
+        HelperFunc.printToConsole(action);
         PrintWriter out = response.getWriter();
         if(action != null) {
             try{
-                System.out.println("Post: action not null");
-                System.out.println(action.equals("addToCart"));
-                if(action.equals("addToCart")) {
-                    String movieId = request.getParameter("movieId");
-                    HttpSession session = request.getSession();
-                    Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
-                    if (cartItems == null) {
-                        Map<String, float[]> result = new HashMap<String, float[]>();
-                        float[] temp = new float[2];
-                        temp[0] = 1;
-                        temp[1] = 0;
-                        result.put(movieId, temp);
-                        session.setAttribute("cartItems", result);
-                    } else {
-                        float[] temp = new float[2];
-                        if (cartItems.get(movieId) == null) {
-                            temp[0] = 1;
-                            temp[1] = 0;
-                            cartItems.put(movieId, temp);
-                        } else {
-                            temp[0] = cartItems.get(movieId)[0] + 1;
-                            temp[1] = cartItems.get(movieId)[1];
-                            cartItems.put(movieId, temp);
-                        }
-                        session.setAttribute("cartItems", cartItems);
-                    }
-                    System.out.println(movieId);
-                    System.out.println(cartItems);
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("status", "success");
-                    out.write(jsonObject.toString());
-                    out.close();
-                }
+                HelperFunc.addToCartButton(out, action, request);
             } catch (Exception e) {
                 // write error message JSON object to output
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("status", "fail");
-                System.out.println("Error: " + e.getMessage());
+                HelperFunc.printToConsole("Error: " + e.getMessage());
                 out.write(jsonObject.toString());
-                out.close();
-
                 response.setStatus(200);
             }
+            out.close();
         }
     }
 
@@ -95,82 +62,18 @@ public class SingleMovieServlet extends HttpServlet {
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
 
-        System.out.println("do??Get_SingleMovieServlet?really?");
+        HelperFunc.printToConsole("do??Get_SingleMovieServlet?really?");
 
         try {
             // Get a connection from dataSource
             Connection dbcon = dataSource.getConnection();
-
-            // Declare our statement
-            Statement statement = dbcon.createStatement();
             String query = "SELECT * from movies as m, ratings as r where m.id = r.movieId and id = '" + id + "'";
-
-            // Perform the query
-            ResultSet rs = statement.executeQuery(query);
-
-            JsonArray jsonArray = new JsonArray();
-            // Iterate through each row of rs
-            while (rs.next()) {
-                String movie_id = rs.getString("id");
-                String movie_title = rs.getString("title");
-                String movie_year = rs.getString("year");
-                String movie_director = rs.getString("director");
-                String movie_rating = rs.getString("rating");
-
-                // Create a JsonObject based on the data we retrieve from rs
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("movie_id", movie_id);
-                jsonObject.addProperty("movie_title", movie_title);
-                jsonObject.addProperty("movie_year", movie_year);
-                jsonObject.addProperty("movie_director", movie_director);
-                jsonObject.addProperty("movie_rating", movie_rating);
-                Statement statement2 = dbcon.createStatement();
-                ResultSet rs2 = statement2.executeQuery(
-                        "select sim.starId, siom.name, count(sim.starId) from stars_in_movies as sim, (" +
-                                "select starId, name from movies,stars,stars_in_movies where stars.id=stars_in_movies.starId " +
-                                "and stars_in_movies.movieId=movies.id and movies.id='" + movie_id + "' " +
-                                ")as siom " + // siom: stars_in_one_movie
-                                "where sim.starId = siom.starId " +
-                                "group by sim.starId " +
-                                "order by count(sim.starId) desc, siom.name");
-                JsonObject starsJsonObject = new JsonObject();
-                int count = 1;
-                while(rs2.next()){
-                    JsonObject singleStarJsonObject = new JsonObject();
-                    singleStarJsonObject.addProperty("id", rs2.getString("starId"));
-                    singleStarJsonObject.addProperty("name", rs2.getString("name"));
-                    starsJsonObject.add(Integer.toString(count), singleStarJsonObject);
-                    count += 1;
-                }
-                jsonObject.add("movie_stars", starsJsonObject);
-                rs2.close();
-                statement2.close();
-
-                Statement statement3 = dbcon.createStatement();
-                ResultSet rs3 = statement3.executeQuery(
-                        "select * from movies,genres,genres_in_movies" +
-                                " where genres.id=genres_in_movies.genreId and genres_in_movies.movieId=movies.id" +
-                                " and movies.id='" + movie_id + "' order by genres.name");
-                JsonObject genresJsonObject = new JsonObject();
-                count = 1;
-                while(rs3.next()){
-                    JsonObject oneGenresJsonObject = new JsonObject();
-                    oneGenresJsonObject.addProperty("name", rs3.getString("name"));
-                    oneGenresJsonObject.addProperty("genreId", rs3.getString("genreId"));
-                    genresJsonObject.add(Integer.toString(count), oneGenresJsonObject);
-                    count += 1;
-                }
-                jsonObject.add("movie_genres", genresJsonObject);
-                rs3.close();
-                statement3.close();
-                jsonArray.add(jsonObject);
-            }
-
+            JsonArray jsonArray = HelperFunc.movieListTable(query, dbcon);
             // last item: lastParamJson
             HttpSession session = request.getSession();
-            JsonObject lastParam = (JsonObject) session.getAttribute("lastParamList");
+            SessionParamList lastParam = (SessionParamList) session.getAttribute("lastParamList");
             if(lastParam != null){
-                jsonArray.add(lastParam);
+                jsonArray.add(HelperFunc.sessionParamToJsonObject(lastParam));
             }
 
             // write JSON string to output
@@ -178,9 +81,8 @@ public class SingleMovieServlet extends HttpServlet {
             // set response status to 200 (OK)
             response.setStatus(200);
 
-            rs.close();
-            statement.close();
             dbcon.close();
+
         } catch (Exception e) {
             // write error message JSON object to output
             JsonObject jsonObject = new JsonObject();
@@ -191,7 +93,7 @@ public class SingleMovieServlet extends HttpServlet {
             response.setStatus(500);
 
         }
-        System.out.println("SingleMovieServletReturn?");
+        HelperFunc.printToConsole("SingleMovieServletReturn?");
         out.close();
     }
 }

@@ -1,5 +1,3 @@
-import {initUpper, getAllParameter, getParameterByName} from './helper.js';
-
 // #######################################
 // Helper functions
 

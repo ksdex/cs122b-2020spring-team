@@ -45,7 +45,7 @@ public class RecaptchaVerifyUtils {
 
         // Response code return from server.
         int responseCode = conn.getResponseCode();
-        System.out.println("responseCode=" + responseCode);
+        HelperFunc.printToConsole("responseCode=" + responseCode);
 
 
         // Get the InputStream from Connection to read data sent from the server.
@@ -56,7 +56,7 @@ public class RecaptchaVerifyUtils {
         
         inputStreamReader.close();
         
-        System.out.println("Response: " + jsonObject.toString());
+        HelperFunc.printToConsole("Response: " + jsonObject.toString());
         
         if (jsonObject.get("success").getAsBoolean()) {
         		// verification succeed

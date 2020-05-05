@@ -38,6 +38,7 @@ public class ConfirmationServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Map<String, float[]> cartItems = (Map<String, float[]>) session.getAttribute("cartItems");
 
+        // If the cart is not empty -> output info on confirmation page
         if(cartItems != null) {
             // Output stream to STDOUT
             PrintWriter out = response.getWriter();
@@ -45,19 +46,17 @@ public class ConfirmationServlet extends HttpServlet {
             try {
                 // Get a connection from dataSource
                 Connection dbcon = dataSource.getConnection();
-
                 JsonArray jsonArray = new JsonArray();
-                Random r = new Random();
+                // Loop through the cart map and output the info
                 for (Map.Entry<String, float[]> entry : cartItems.entrySet()) {
                     // Declare our statement
                     String movieId = entry.getKey();
                     float[] itemInfo = entry.getValue();
                     Statement statement = dbcon.createStatement();
                     String query = "SELECT m.title from movies as m where id = '" + movieId + "'";
-
-                    // Perform the query
                     ResultSet rs = statement.executeQuery(query);
                     float totalPrice = 0;
+
                     // Iterate through each row of rs
                     while (rs.next()) {
                         String movie_title = rs.getString("title");
@@ -74,14 +73,16 @@ public class ConfirmationServlet extends HttpServlet {
                     price.addProperty("totalPrice", totalPrice);
                     jsonArray.add(price);
                     session.setAttribute("cartItems", new HashMap<String, float[]>());
+
+                    // Release resources
                     rs.close();
                     statement.close();
                 }
                 out.write(jsonArray.toString());
-                // set response status to 200 (OK)
+                // Return results and release resources
                 response.setStatus(200);
                 dbcon.close();
-                System.out.println("SingleMovieServletReturn");
+                HelperFunc.printToConsole("SingleMovieServletReturn");
                 out.close();
 
             } catch (Exception e) {
@@ -89,6 +90,7 @@ public class ConfirmationServlet extends HttpServlet {
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("errorMessage", e.getMessage());
                 out.write(jsonObject.toString());
+                out.close();
                 // set response status to 500 (Internal Server Error)
                 response.setStatus(500);
             }
